@@ -8,33 +8,53 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Minecraft-inspired dark theme */
+    --background: 220 27% 8%;
+    --foreground: 210 20% 92%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 220 25% 12%;
+    --card-foreground: 210 20% 92%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 25% 12%;
+    --popover-foreground: 210 20% 92%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Diamond blue primary */
+    --primary: 200 80% 55%;
+    --primary-foreground: 220 27% 8%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Darker secondary */
+    --secondary: 220 25% 16%;
+    --secondary-foreground: 210 20% 92%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 25% 14%;
+    --muted-foreground: 210 15% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Emerald green accent */
+    --accent: 140 70% 45%;
+    --accent-foreground: 220 27% 8%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Warning/danger colors */
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 210 20% 92%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 25% 18%;
+    --input: 220 25% 16%;
+    --ring: 200 80% 55%;
+
+    /* Gaming-specific colors */
+    --gaming-orange: 25 85% 60%;
+    --gaming-purple: 270 70% 65%;
+    --mining-gray: 220 15% 25%;
+    
+    /* Gradients and effects */
+    --gradient-primary: linear-gradient(135deg, hsl(200 80% 55%), hsl(180 70% 50%));
+    --gradient-accent: linear-gradient(135deg, hsl(140 70% 45%), hsl(120 60% 40%));
+    --gradient-dark: linear-gradient(180deg, hsl(220 27% 8%), hsl(220 25% 12%));
+    
+    /* Shadows for blocky effect */
+    --shadow-blocky: 0 4px 0 hsl(220 25% 6%), 0 8px 16px hsl(220 27% 4% / 0.4);
+    --shadow-hover: 0 6px 0 hsl(200 80% 45%), 0 12px 24px hsl(200 80% 55% / 0.3);
+    --shadow-accent: 0 4px 0 hsl(140 70% 35%), 0 8px 16px hsl(140 70% 45% / 0.3);
 
     --radius: 0.5rem;
 
