@@ -23,7 +23,7 @@ export const useForumPosts = (categoryId?: number) => {
     try {
       let query = supabase
         .from('forum_posts')
-        .select('*, profiles(username, avatar_url)')
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (categoryId) {
@@ -71,7 +71,7 @@ export const useForumPosts = (categoryId?: number) => {
           title,
           content
         }])
-        .select('*, profiles(username, avatar_url)')
+        .select('*')
         .single();
 
       if (error) throw error;
