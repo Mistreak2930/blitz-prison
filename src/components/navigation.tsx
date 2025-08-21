@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, User } from "lucide-react";
 import { MinecraftButton } from "./ui/minecraft-button";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +30,7 @@ const Navigation = () => {
   const navItems = [
     { path: "/", name: "Home" },
     { path: "/forums", name: "Forums" },
+    { path: "/members", name: "Members" },
     { path: "/news", name: "News" },
     { path: "/announcements", name: "Announcements" },
   ];
@@ -38,11 +39,18 @@ const Navigation = () => {
     <nav className="bg-card border-b-2 border-border shadow-blocky sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
+          <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-2">
               <span className="text-2xl font-black text-primary">⛏</span>
               <span className="text-xl font-black text-foreground">BLITZ PRISON</span>
             </Link>
+            
+            {user && (
+              <MinecraftButton variant="ghost" size="sm">
+                <User className="h-4 w-4 mr-2" />
+                PROFILE
+              </MinecraftButton>
+            )}
           </div>
 
           {/* Desktop Navigation */}
@@ -62,19 +70,14 @@ const Navigation = () => {
             ))}
             
             {user ? (
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-muted-foreground">
-                  Welcome back!
-                </span>
-                <MinecraftButton
-                  variant="outline"
-                  size="sm"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="h-4 w-4 mr-1" />
-                  Logout
-                </MinecraftButton>
-              </div>
+              <MinecraftButton
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-4 w-4 mr-1" />
+                Logout
+              </MinecraftButton>
             ) : (
               <Link to="/auth">
                 <MinecraftButton variant="outline" size="sm">
@@ -116,9 +119,6 @@ const Navigation = () => {
               
               {user ? (
                 <div className="pt-4 border-t border-border space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Welcome back!
-                  </p>
                   <MinecraftButton
                     variant="outline"
                     size="sm"

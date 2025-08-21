@@ -9,6 +9,7 @@ import News from "./pages/News";
 import Announcements from "./pages/Announcements";
 import Auth from "./pages/Auth";
 import ForumCategory from "./pages/ForumCategory";
+import Members from "./pages/Members";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/forums" element={<Forums />} />
           <Route path="/forums/category/:id" element={<ForumCategory />} />
+          <Route path="/members" element={<Members />} />
           <Route path="/news" element={<News />} />
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/auth" element={<Auth />} />
