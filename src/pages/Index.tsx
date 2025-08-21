@@ -43,7 +43,7 @@ const Index = () => {
   const stats = [
     { label: "Players Online", value: "1,247", icon: Users },
     { label: "Total Registered", value: "45,892", icon: Crown },
-    { label: "Mines Available", value: "32", icon: Pickaxe },
+    { label: "Mines Available", value: "26", icon: Pickaxe },
     { label: "Server Uptime", value: "99.9%", icon: Server }
   ];
 
@@ -73,7 +73,7 @@ const Index = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <MinecraftButton variant="hero" size="xl">
-              JOIN NOW: play.blitzprison.net
+              JOIN NOW: blitzprison.minefort.com
             </MinecraftButton>
             <MinecraftButton variant="outline" size="xl">
               View Server Info
