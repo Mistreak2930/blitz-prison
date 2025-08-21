@@ -53,8 +53,8 @@ const Auth = () => {
         });
       } else {
         toast({
-          title: isLogin ? "Welcome back!" : "Account created!",
-          description: isLogin ? "Successfully logged in" : "Check your email to verify your account",
+          title: isLogin ? "Logged In!" : "Account created!",
+          description: isLogin ? "You have successfully logged in!" : "Please check your email for a link to verify your new account!",
         });
       }
     } catch (error) {
@@ -76,10 +76,10 @@ const Auth = () => {
         <Card className="shadow-blocky">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-black text-foreground">
-              {isLogin ? 'LOGIN TO PRISON' : 'JOIN THE PRISON'}
+              {isLogin ? 'LOGIN' : 'SIGN UP'}
             </CardTitle>
             <CardDescription>
-              {isLogin ? 'Access your prisoner account' : 'Create your prisoner account'}
+              {isLogin ? 'Login to Blitz prison' : 'Create your free Blitz prison account'}
             </CardDescription>
           </CardHeader>
           
@@ -93,7 +93,7 @@ const Auth = () => {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter your prison name"
+                    placeholder="Enter your minecraft Username"
                     required
                   />
                 </div>
