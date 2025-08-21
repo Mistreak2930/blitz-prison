@@ -81,7 +81,7 @@ const Navigation = () => {
             ) : (
               <Link to="/auth">
                 <MinecraftButton variant="outline" size="sm">
-                  Join Prison
+                  Login
                 </MinecraftButton>
               </Link>
             )}
