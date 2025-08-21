@@ -81,6 +81,19 @@ export const useForumPosts = (categoryId?: number) => {
     }
   };
 
+  const deletePost = async (postId: string) => {
+    try {
+      const { error } = await supabase
+        .from('forum_posts')
+        .delete()
+        .eq('id', postId);
+      if (error) throw error;
+      return { error: null };
+    } catch (error) {
+      return { error } as { error: any };
+    }
+  };
+
   useEffect(() => {
     fetchPosts();
 
@@ -109,6 +122,7 @@ export const useForumPosts = (categoryId?: number) => {
     posts,
     loading,
     fetchPosts,
-    createPost
+    createPost,
+    deletePost
   };
 };

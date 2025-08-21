@@ -3,17 +3,31 @@ import { Card } from "@/components/ui/card";
 import { MinecraftButton } from "@/components/ui/minecraft-button";
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/navigation";
-import { MessageSquare, Users, Lock, Star, Zap, Plus, Clock, User } from "lucide-react";
+import { MessageSquare, Users, Lock, Star, Zap, Plus, Clock, User, Trash2, Eye } from "lucide-react";
 import { CreatePostModal } from "@/components/CreatePostModal";
 import { useForumPosts } from "@/hooks/useForumPosts";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import { useIsAdmin } from "@/hooks/useUserRole";
 
 const Forums = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { posts, loading } = useForumPosts();
+  const { posts, loading, deletePost } = useForumPosts();
   const { user } = useAuth();
-  
+  const { isAdmin } = useIsAdmin();
+
+  const handleDelete = async (id: string) => {
+    if (!isAdmin) return;
+    if (!confirm('Delete this post?')) return;
+    const { error } = await deletePost(id);
+    if (error) {
+      toast.error('Failed to delete post');
+    } else {
+      toast.success('Post deleted');
+    }
+  };
+
   const forumCategories = [
     {
       id: 1,
@@ -105,14 +119,21 @@ const Forums = () => {
                     </div>
                   </div>
                   
-                  <MinecraftButton 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setShowCreateModal(true)}
-                    disabled={!user}
-                  >
-                    {user ? 'Create Post' : 'Login Required'}
-                  </MinecraftButton>
+                  <div className="flex items-center gap-2">
+                    <Link to={`/forums/category/${category.id}`}>
+                      <MinecraftButton variant="outline" size="sm">
+                        View All
+                      </MinecraftButton>
+                    </Link>
+                    <MinecraftButton 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowCreateModal(true)}
+                      disabled={!user}
+                    >
+                      {user ? 'Create Post' : 'Login Required'}
+                    </MinecraftButton>
+                  </div>
                 </div>
               </Card>
             );
@@ -181,6 +202,12 @@ const Forums = () => {
                           </div>
                         </div>
                       </div>
+
+                      {isAdmin && (
+                        <Button variant="destructive" size="sm" onClick={() => handleDelete(post.id)}>
+                          Delete
+                        </Button>
+                      )}
                     </div>
                   </Card>
                 );
