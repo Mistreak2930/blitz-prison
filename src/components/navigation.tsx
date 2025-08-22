@@ -3,12 +3,14 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X, LogOut, User } from "lucide-react";
 import { MinecraftButton } from "./ui/minecraft-button";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const { toast } = useToast();
 
   const handleSignOut = async () => {
@@ -44,12 +46,23 @@ const Navigation = () => {
               <span className="text-2xl font-black text-primary">⛏</span>
               <span className="text-xl font-black text-foreground">BLITZ PRISON</span>
             </Link>
-            
+          </div>
+          
+          <div className="flex items-center space-x-4">
             {user && (
-              <MinecraftButton variant="ghost" size="sm">
-                <User className="h-4 w-4 mr-2" />
-                PROFILE
-              </MinecraftButton>
+              <>
+                <MinecraftButton variant="ghost" size="sm">
+                  <User className="h-4 w-4 mr-2" />
+                  PROFILE
+                </MinecraftButton>
+                {isAdmin && (
+                  <Link to="/admin">
+                    <MinecraftButton variant="ghost" size="sm">
+                      ADMIN
+                    </MinecraftButton>
+                  </Link>
+                )}
+              </>
             )}
           </div>
 
@@ -119,6 +132,13 @@ const Navigation = () => {
               
               {user ? (
                 <div className="pt-4 border-t border-border space-y-3">
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
+                      <MinecraftButton variant="ghost" size="sm" className="w-full">
+                        ADMIN DASHBOARD
+                      </MinecraftButton>
+                    </Link>
+                  )}
                   <MinecraftButton
                     variant="outline"
                     size="sm"

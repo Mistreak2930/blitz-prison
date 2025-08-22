@@ -10,6 +10,7 @@ import Announcements from "./pages/Announcements";
 import Auth from "./pages/Auth";
 import ForumCategory from "./pages/ForumCategory";
 import Members from "./pages/Members";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/news" element={<News />} />
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

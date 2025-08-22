@@ -1,63 +1,43 @@
 import { Card } from "@/components/ui/card";
 import { MinecraftButton } from "@/components/ui/minecraft-button";
 import Navigation from "@/components/navigation";
-import { Megaphone, AlertTriangle, Info, Star, Zap } from "lucide-react";
+import { Megaphone, AlertTriangle, Info, Star, Zap, Trash2 } from "lucide-react";
+import { CreateContentModal } from "@/components/CreateContentModal";
+import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useUserRole";
+import { useToast } from "@/hooks/use-toast";
 
 const Announcements = () => {
-  const announcements = [
-    {
-      id: 1,
-      title: "Server Maintenance - December 20th",
-      content: "The server will undergo scheduled maintenance on December 20th from 3:00 AM to 6:00 AM EST. We'll be implementing performance improvements and bug fixes.",
-      type: "maintenance",
-      priority: "high",
-      date: "December 18, 2024",
-      author: "BlitzAdmin",
-      pinned: true
-    },
-    {
-      id: 2,
-      title: "New Player Protection Extended",
-      content: "We've extended new player protection from 24 hours to 48 hours to give fresh prisoners more time to learn the ropes and establish themselves.",
-      type: "update",
-      priority: "medium",
-      date: "December 16, 2024",
-      author: "ModTeam",
-      pinned: true
-    },
-    {
-      id: 3,
-      title: "Holiday Event Starting Soon!",
-      content: "Get ready for our Winter Holiday Event! Special holiday mines, exclusive rewards, and festive decorations throughout the prison. Event starts December 22nd!",
-      type: "event",
-      priority: "high",
-      date: "December 15, 2024",
-      author: "EventTeam",
-      pinned: false
-    },
-    {
-      id: 4,
-      title: "Rule Update: Chat Guidelines",
-      content: "We've updated our chat guidelines to be more clear about what constitutes spam and inappropriate behavior. Please review the updated rules in /rules.",
-      type: "rules",
-      priority: "medium",
-      date: "December 13, 2024",
-      author: "AdminTeam",
-      pinned: false
-    },
-    {
-      id: 5,
-      title: "Performance Improvements Deployed",
-      content: "We've deployed several performance improvements that should reduce lag during peak hours. Let us know if you notice any improvements!",
-      type: "update",
-      priority: "low",
-      date: "December 11, 2024",
-      author: "DevTeam",
-      pinned: false
-    }
-  ];
+  const { announcements, loading, createAnnouncement, deleteAnnouncement } = useAnnouncements();
+  const { user } = useAuth();
+  const { isAdmin } = useIsAdmin();
+  const { toast } = useToast();
 
-  const getAnnouncementIcon = (type: string) => {
+  const canCreateAnnouncements = user && (isAdmin || false); // TODO: Add announcements_manager role check
+  const canDeleteAnnouncements = user && isAdmin;
+
+  const handleCreateAnnouncement = async (title: string, content: string) => {
+    await createAnnouncement(title, content);
+  };
+
+  const handleDeleteAnnouncement = async (id: string) => {
+    try {
+      await deleteAnnouncement(id);
+      toast({
+        title: "Announcement deleted",
+        description: "The announcement has been deleted successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete announcement",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getAnnouncementIcon = (type: string = "general") => {
     switch (type) {
       case "maintenance":
         return AlertTriangle;
@@ -72,7 +52,7 @@ const Announcements = () => {
     }
   };
 
-  const getAnnouncementColor = (type: string) => {
+  const getAnnouncementColor = (type: string = "general") => {
     switch (type) {
       case "maintenance":
         return "text-gaming-orange";
@@ -87,19 +67,6 @@ const Announcements = () => {
     }
   };
 
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "bg-destructive text-destructive-foreground";
-      case "medium":
-        return "bg-gaming-orange text-foreground";
-      case "low":
-        return "bg-muted text-muted-foreground";
-      default:
-        return "bg-muted text-muted-foreground";
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -107,78 +74,90 @@ const Announcements = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-black text-foreground mb-4">PRISON ANNOUNCEMENTS</h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-lg mb-6">
             Important updates, maintenance notices, and official announcements from the Blitz Prison team.
           </p>
+          
+          {canCreateAnnouncements && (
+            <CreateContentModal
+              onCreateContent={handleCreateAnnouncement}
+              buttonText="Create Announcement"
+              title="Announcement"
+            />
+          )}
         </div>
+        
+        {!user && (
+          <Card className="p-6 mb-8 border-primary bg-primary/5">
+            <p className="text-center text-foreground">
+              <strong>Want to contribute?</strong> <a href="/auth" className="text-primary hover:underline">Login</a> to access posting features if you have the right permissions.
+            </p>
+          </Card>
+        )}
 
-        <div className="grid gap-6">
-          {announcements.map((announcement) => {
-            const Icon = getAnnouncementIcon(announcement.type);
-            const iconColor = getAnnouncementColor(announcement.type);
-            
-            return (
-              <Card 
-                key={announcement.id} 
-                className={`p-6 shadow-blocky hover:shadow-hover transition-all hover:translate-y-[-2px] ${
-                  announcement.pinned ? 'border-2 border-accent' : ''
-                }`}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start space-x-4">
-                    <div className={`p-3 rounded-sm bg-card border-2 border-border ${iconColor}`}>
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        {announcement.pinned && (
-                          <div className="inline-flex items-center px-2 py-1 rounded-sm bg-accent text-accent-foreground text-xs font-bold">
-                            PINNED
-                          </div>
-                        )}
-                        <div className={`inline-flex items-center px-2 py-1 rounded-sm text-xs font-bold ${getPriorityBadge(announcement.priority)}`}>
-                          {announcement.priority.toUpperCase()}
+        {loading ? (
+          <div className="text-center py-8 text-muted-foreground">Loading announcements...</div>
+        ) : (
+          <div className="grid gap-6">
+            {announcements.length === 0 ? (
+              <Card className="p-8 text-center">
+                <p className="text-muted-foreground">No announcements yet. Check back later!</p>
+              </Card>
+            ) : (
+              announcements.map((announcement) => {
+                const Icon = getAnnouncementIcon();
+                const iconColor = getAnnouncementColor();
+                
+                return (
+                  <Card 
+                    key={announcement.id} 
+                    className="p-6 shadow-blocky hover:shadow-hover transition-all hover:translate-y-[-2px]"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start space-x-4">
+                        <div className={`p-3 rounded-sm bg-card border-2 border-border ${iconColor}`}>
+                          <Icon className="h-6 w-6" />
                         </div>
-                        <span className="text-xs text-muted-foreground uppercase tracking-wide font-bold">
-                          {announcement.type}
-                        </span>
+                        
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold text-foreground mb-3">
+                            {announcement.title}
+                          </h3>
+                        </div>
                       </div>
                       
-                      <h3 className="text-xl font-bold text-foreground mb-3">
-                        {announcement.title}
-                      </h3>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="ml-16">
-                  <p className="text-muted-foreground leading-relaxed mb-4">
-                    {announcement.content}
-                  </p>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                      <span>By {announcement.author}</span>
-                      <span>•</span>
-                      <span>{announcement.date}</span>
+                      {canDeleteAnnouncements && (
+                        <MinecraftButton 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDeleteAnnouncement(announcement.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </MinecraftButton>
+                      )}
                     </div>
                     
-                    <MinecraftButton variant="ghost" size="sm">
-                      View Details
-                    </MinecraftButton>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-
-        <div className="mt-12 text-center">
-          <MinecraftButton variant="secondary" size="lg">
-            View Archive
-          </MinecraftButton>
-        </div>
+                    <div className="ml-16">
+                      <p className="text-muted-foreground leading-relaxed mb-4">
+                        {announcement.content}
+                      </p>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          <span>{new Date(announcement.created_at).toLocaleDateString()}</span>
+                        </div>
+                        
+                        <MinecraftButton variant="ghost" size="sm">
+                          View Details
+                        </MinecraftButton>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })
+            )}
+          </div>
+        )}
       </main>
     </div>
   );
