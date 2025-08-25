@@ -1,69 +1,51 @@
-import { Card } from "@/components/ui/card";
-import { MinecraftButton } from "@/components/ui/minecraft-button";
-import Navigation from "@/components/navigation";
-import { Megaphone, AlertTriangle, Info, Star, Zap, Trash2 } from "lucide-react";
-import { CreateContentModal } from "@/components/CreateContentModal";
+import { useState } from "react";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useUserRole";
-import { useToast } from "@/hooks/use-toast";
+import { useRoles } from "@/hooks/useRoles";
+import Navigation from "@/components/navigation";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { CreateContentModal } from "@/components/CreateContentModal";
+import { Clock, User, Plus, Trash2, AlertCircle, Pin } from "lucide-react";
+import { toast } from "sonner";
 
 const Announcements = () => {
-  const { announcements, loading, createAnnouncement, deleteAnnouncement } = useAnnouncements();
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { announcements, loading, createAnnouncement, deleteAnnouncement, togglePin } = useAnnouncements();
   const { user } = useAuth();
   const { isAdmin } = useIsAdmin();
-  const { toast } = useToast();
+  const { hasRole } = useRoles();
 
-  const canCreateAnnouncements = user && (isAdmin || false); // TODO: Add announcements_manager role check
-  const canDeleteAnnouncements = user && isAdmin;
+  const canManageAnnouncements = isAdmin || (user && hasRole(user.id, 'announcements_manager'));
 
-  const handleCreateAnnouncement = async (title: string, content: string) => {
-    await createAnnouncement(title, content);
+  const handlePin = async (id: string, pinned: boolean) => {
+    try {
+      await togglePin(id, pinned);
+      toast.success(pinned ? 'Announcement unpinned' : 'Announcement pinned');
+    } catch (error) {
+      toast.error('Failed to update announcement');
+    }
   };
 
-  const handleDeleteAnnouncement = async (id: string) => {
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this announcement?')) return;
     try {
       await deleteAnnouncement(id);
-      toast({
-        title: "Announcement deleted",
-        description: "The announcement has been deleted successfully",
-      });
+      toast.success('Announcement deleted');
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete announcement",
-        variant: "destructive"
-      });
+      toast.error('Failed to delete announcement');
     }
   };
 
-  const getAnnouncementIcon = (type: string = "general") => {
-    switch (type) {
-      case "maintenance":
-        return AlertTriangle;
-      case "event":
-        return Star;
-      case "update":
-        return Zap;
-      case "rules":
-        return Info;
-      default:
-        return Megaphone;
-    }
-  };
-
-  const getAnnouncementColor = (type: string = "general") => {
-    switch (type) {
-      case "maintenance":
-        return "text-gaming-orange";
-      case "event":
-        return "text-accent";
-      case "update":
-        return "text-primary";
-      case "rules":
-        return "text-gaming-purple";
-      default:
-        return "text-foreground";
+  const handleCreate = async (title: string, content: string) => {
+    try {
+      await createAnnouncement(title, content);
+      setShowCreateModal(false);
+      toast.success('Announcement created');
+    } catch (error) {
+      toast.error('Failed to create announcement');
     }
   };
 
@@ -74,88 +56,80 @@ const Announcements = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-black text-foreground mb-4">PRISON ANNOUNCEMENTS</h1>
-          <p className="text-muted-foreground text-lg mb-6">
+          <p className="text-muted-foreground text-lg">
             Important updates, maintenance notices, and official announcements from the Blitz Prison team.
           </p>
-          
-          {canCreateAnnouncements && (
-            <CreateContentModal
-              onCreateContent={handleCreateAnnouncement}
-              buttonText="Create Announcement"
-              title="Announcement"
-            />
-          )}
         </div>
-        
-        {!user && (
-          <Card className="p-6 mb-8 border-primary bg-primary/5">
-            <p className="text-center text-foreground">
-              <strong>Want to contribute?</strong> <a href="/auth" className="text-primary hover:underline">Login</a> to access posting features if you have the right permissions.
-            </p>
-          </Card>
+
+        {canManageAnnouncements && (
+          <CreateContentModal
+            onCreateContent={handleCreate}
+            buttonText="Create Announcement"
+            title="Announcement"
+          />
         )}
 
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading announcements...</div>
+        ) : announcements.length === 0 ? (
+          <Card className="p-8 text-center">
+            <p className="text-muted-foreground">No announcements yet. Check back later!</p>
+          </Card>
         ) : (
-          <div className="grid gap-6">
-            {announcements.length === 0 ? (
-              <Card className="p-8 text-center">
-                <p className="text-muted-foreground">No announcements yet. Check back later!</p>
-              </Card>
-            ) : (
-              announcements.map((announcement) => {
-                const Icon = getAnnouncementIcon();
-                const iconColor = getAnnouncementColor();
-                
-                return (
-                  <Card 
-                    key={announcement.id} 
-                    className="p-6 shadow-blocky hover:shadow-hover transition-all hover:translate-y-[-2px]"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-start space-x-4">
-                        <div className={`p-3 rounded-sm bg-card border-2 border-border ${iconColor}`}>
-                          <Icon className="h-6 w-6" />
-                        </div>
-                        
-                        <div className="flex-1">
-                          <h3 className="text-xl font-bold text-foreground mb-3">
-                            {announcement.title}
-                          </h3>
-                        </div>
-                      </div>
-                      
-                      {canDeleteAnnouncements && (
-                        <MinecraftButton 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleDeleteAnnouncement(announcement.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </MinecraftButton>
+          <div className="space-y-6">
+            {announcements.map((announcement) => (
+              <Card key={announcement.id} className={`p-6 shadow-blocky hover:shadow-hover transition-all border-l-4 border-l-gaming-orange ${announcement.pinned ? 'border-gaming-gold border-2' : ''}`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-sm bg-gaming-orange/10 border-2 border-gaming-orange/20">
+                      <AlertCircle className="h-5 w-5 text-gaming-orange" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-2xl font-bold text-foreground">{announcement.title}</h2>
+                      {announcement.pinned && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Pin className="h-3 w-3 mr-1" />
+                          Pinned
+                        </Badge>
                       )}
                     </div>
-                    
-                    <div className="ml-16">
-                      <p className="text-muted-foreground leading-relaxed mb-4">
-                        {announcement.content}
-                      </p>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <span>{new Date(announcement.created_at).toLocaleDateString()}</span>
-                        </div>
-                        
-                        <MinecraftButton variant="ghost" size="sm">
-                          View Details
-                        </MinecraftButton>
-                      </div>
+                  </div>
+                  {canManageAnnouncements && (
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handlePin(announcement.id, announcement.pinned)}
+                      >
+                        <Pin className={`h-4 w-4 ${announcement.pinned ? 'text-gaming-gold' : 'text-muted-foreground'}`} />
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => handleDelete(announcement.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                  </Card>
-                );
-              })
-            )}
+                  )}
+                </div>
+                
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                  {announcement.content}
+                </p>
+                
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <User className="h-4 w-4" />
+                    <span>Staff</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>{new Date(announcement.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
         )}
       </main>

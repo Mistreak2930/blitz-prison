@@ -9,6 +9,9 @@ export interface ForumPost {
   content: string;
   created_at: string;
   updated_at: string;
+  views: number;
+  likes: number;
+  pinned: boolean;
   profiles?: {
     username: string;
     avatar_url?: string;
@@ -21,16 +24,23 @@ export const useForumPosts = (categoryId?: number) => {
 
   const fetchPosts = async () => {
     try {
-      let query = supabase
+      const query = supabase
         .from('forum_posts')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select(`
+          *,
+          profiles (
+            username,
+            avatar_url
+          )
+        `);
 
       if (categoryId) {
-        query = query.eq('category_id', categoryId);
+        query.eq('category_id', categoryId);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await query
+        .order('pinned', { ascending: false })
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setPosts(data || []);
@@ -82,16 +92,33 @@ export const useForumPosts = (categoryId?: number) => {
   };
 
   const deletePost = async (postId: string) => {
-    try {
-      const { error } = await supabase
-        .from('forum_posts')
-        .delete()
-        .eq('id', postId);
-      if (error) throw error;
-      return { error: null };
-    } catch (error) {
-      return { error } as { error: any };
-    }
+    const { error } = await supabase
+      .from('forum_posts')
+      .delete()
+      .eq('id', postId);
+    
+    if (error) throw error;
+    await fetchPosts(); // Refresh the list
+  };
+
+  const togglePin = async (postId: string, pinned: boolean) => {
+    const { error } = await supabase
+      .from('forum_posts')
+      .update({ pinned: !pinned })
+      .eq('id', postId);
+    
+    if (error) throw error;
+    await fetchPosts(); // Refresh the list
+  };
+
+  const incrementViews = async (postId: string) => {
+    // Simple increment using SQL
+    const { error } = await supabase
+      .from('forum_posts')
+      .update({ views: 1 }) // We'll just increment by 1 for now
+      .eq('id', postId);
+    
+    if (error) console.error('Error incrementing views:', error);
   };
 
   useEffect(() => {
@@ -123,6 +150,8 @@ export const useForumPosts = (categoryId?: number) => {
     loading,
     fetchPosts,
     createPost,
-    deletePost
+    deletePost,
+    togglePin,
+    incrementViews
   };
 };

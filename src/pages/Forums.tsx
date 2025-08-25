@@ -20,11 +20,11 @@ const Forums = () => {
   const handleDelete = async (id: string) => {
     if (!isAdmin) return;
     if (!confirm('Delete this post?')) return;
-    const { error } = await deletePost(id);
-    if (error) {
-      toast.error('Failed to delete post');
-    } else {
+    try {
+      await deletePost(id);
       toast.success('Post deleted');
+    } catch (error) {
+      toast.error('Failed to delete post');
     }
   };
 

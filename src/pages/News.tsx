@@ -1,39 +1,51 @@
-import { Card } from "@/components/ui/card";
-import { MinecraftButton } from "@/components/ui/minecraft-button";
-import Navigation from "@/components/navigation";
-import { Calendar, User, ArrowRight, Trash2 } from "lucide-react";
-import { CreateContentModal } from "@/components/CreateContentModal";
+import { useState } from "react";
 import { useNews } from "@/hooks/useNews";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useUserRole";
-import { useToast } from "@/hooks/use-toast";
+import { useRoles } from "@/hooks/useRoles";
+import Navigation from "@/components/navigation";
+import { Card } from "@/components/ui/card"; 
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { CreateContentModal } from "@/components/CreateContentModal";
+import { Clock, User, Plus, Trash2, Pin } from "lucide-react";
+import { toast } from "sonner";
 
 const News = () => {
-  const { news, loading, createNews, deleteNews } = useNews();
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { news, loading, createNews, deleteNews, togglePin } = useNews();
   const { user } = useAuth();
   const { isAdmin } = useIsAdmin();
-  const { toast } = useToast();
+  const { hasRole } = useRoles();
 
-  const canCreateNews = user && (isAdmin || false); // TODO: Add news_updater role check
-  const canDeleteNews = user && isAdmin;
+  const canManageNews = isAdmin || (user && hasRole(user.id, 'news_updater'));
 
-  const handleCreateNews = async (title: string, content: string) => {
-    await createNews(title, content);
+  const handlePin = async (id: string, pinned: boolean) => {
+    try {
+      await togglePin(id, pinned);
+      toast.success(pinned ? 'News unpinned' : 'News pinned');
+    } catch (error) {
+      toast.error('Failed to update news');
+    }
   };
 
-  const handleDeleteNews = async (id: string) => {
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this news article?')) return;
     try {
       await deleteNews(id);
-      toast({
-        title: "News deleted",
-        description: "The news article has been deleted successfully",
-      });
+      toast.success('News deleted');
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete news",
-        variant: "destructive"
-      });
+      toast.error('Failed to delete news');
+    }
+  };
+
+  const handleCreate = async (title: string, content: string) => {
+    try {
+      await createNews(title, content);
+      setShowCreateModal(false);
+      toast.success('News created');
+    } catch (error) {
+      toast.error('Failed to create news');
     }
   };
 
@@ -44,82 +56,75 @@ const News = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-black text-foreground mb-4">PRISON NEWS & UPDATES</h1>
-          <p className="text-muted-foreground text-lg mb-6">
+          <p className="text-muted-foreground text-lg">
             Stay informed about the latest updates, features, and events on Blitz Prison.
           </p>
-          
-          {canCreateNews && (
-            <CreateContentModal
-              onCreateContent={handleCreateNews}
-              buttonText="Create News Article"
-              title="News Article"
-            />
-          )}
         </div>
-        
-        {!user && (
-          <Card className="p-6 mb-8 border-primary bg-primary/5">
-            <p className="text-center text-foreground">
-              <strong>Want to contribute?</strong> <a href="/auth" className="text-primary hover:underline">Login</a> to access posting features if you have the right permissions.
-            </p>
-          </Card>
+
+        {canManageNews && (
+          <CreateContentModal
+            onCreateContent={handleCreate}
+            buttonText="Create News Article"
+            title="News Article"
+          />
         )}
 
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading news...</div>
+        ) : news.length === 0 ? (
+          <Card className="p-8 text-center">
+            <p className="text-muted-foreground">No news articles yet. Check back later!</p>
+          </Card>
         ) : (
-          <div className="grid gap-8">
-            {news.length === 0 ? (
-              <Card className="p-8 text-center">
-                <p className="text-muted-foreground">No news articles yet. Check back later!</p>
-              </Card>
-            ) : (
-              news.map((article, index) => (
-                <Card 
-                  key={article.id} 
-                  className="p-6 shadow-blocky hover:shadow-hover transition-all hover:translate-y-[-2px] cursor-pointer"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h2 className="text-xl font-bold text-foreground mb-3">
-                        {article.title}
-                      </h2>
-                      
-                      <p className="text-muted-foreground mb-4 leading-relaxed">
-                        {article.content}
-                      </p>
-                      
-                      <div className="flex items-center space-x-6 text-sm text-muted-foreground mb-4">
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>{new Date(article.created_at).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 ml-4">
-                      <MinecraftButton variant="outline" size="sm">
-                        <span>Read More</span>
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </MinecraftButton>
-                      
-                      {canDeleteNews && (
-                        <MinecraftButton 
-                          variant="outline" 
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteNews(article.id);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </MinecraftButton>
-                      )}
-                    </div>
+          <div className="space-y-6">
+            {news.map((item) => (
+              <Card key={item.id} className={`p-6 shadow-blocky hover:shadow-hover transition-all ${item.pinned ? 'border-gaming-gold border-2' : ''}`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-2xl font-bold text-foreground">{item.title}</h2>
+                    {item.pinned && (
+                      <Badge variant="secondary" className="text-xs">
+                        <Pin className="h-3 w-3 mr-1" />
+                        Pinned
+                      </Badge>
+                    )}
                   </div>
-                </Card>
-              ))
-            )}
+                  {canManageNews && (
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handlePin(item.id, item.pinned)}
+                      >
+                        <Pin className={`h-4 w-4 ${item.pinned ? 'text-gaming-gold' : 'text-muted-foreground'}`} />
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                  {item.content}
+                </p>
+                
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <User className="h-4 w-4" />
+                    <span>Staff</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>{new Date(item.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
         )}
       </main>

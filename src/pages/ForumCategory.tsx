@@ -3,12 +3,11 @@ import { useParams, Link } from "react-router-dom";
 import Navigation from "@/components/navigation";
 import { Card } from "@/components/ui/card";
 import { MinecraftButton } from "@/components/ui/minecraft-button";
-import { Button } from "@/components/ui/button";
 import { CreatePostModal } from "@/components/CreatePostModal";
+import { ForumPostCard } from "@/components/ForumPostCard";
 import { useForumPosts } from "@/hooks/useForumPosts";
 import { useAuth } from "@/hooks/useAuth";
-import { useIsAdmin } from "@/hooks/useUserRole";
-import { MessageSquare, Users, Lock, Star, Zap, Clock, User } from "lucide-react";
+import { MessageSquare, Users, Lock, Star, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 const forumCategories = [
@@ -23,9 +22,8 @@ const ForumCategory = () => {
   const { id } = useParams();
   const categoryId = Number(id);
   const category = useMemo(() => forumCategories.find(c => c.id === categoryId), [categoryId]);
-  const { posts, loading, deletePost } = useForumPosts(categoryId);
+  const { posts, loading, deletePost, togglePin } = useForumPosts(categoryId);
   const { user } = useAuth();
-  const { isAdmin } = useIsAdmin();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
@@ -53,11 +51,22 @@ const ForumCategory = () => {
   const Icon = category?.icon || MessageSquare;
 
   const handleDelete = async (postId: string) => {
-    if (!isAdmin) return;
     if (!confirm('Delete this post?')) return;
-    const { error } = await deletePost(postId);
-    if (error) toast.error('Failed to delete post');
-    else toast.success('Post deleted');
+    try {
+      await deletePost(postId);
+      toast.success('Post deleted');
+    } catch (error) {
+      toast.error('Failed to delete post');
+    }
+  };
+
+  const handlePin = async (postId: string, pinned: boolean) => {
+    try {
+      await togglePin(postId, pinned);
+      toast.success(pinned ? 'Post unpinned' : 'Post pinned');
+    } catch (error) {
+      toast.error('Failed to update post');
+    }
   };
 
   return (
@@ -98,24 +107,13 @@ const ForumCategory = () => {
         ) : (
           <div className="space-y-4">
             {posts.map((post) => (
-              <Card key={post.id} className="p-4 shadow-blocky hover:shadow-hover transition-all">
-                <div className="flex items-start gap-4">
-                  <div className={`p-2 rounded-sm bg-card border-2 border-border ${category?.color || 'text-primary'}`}>
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-foreground mb-1">{post.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{post.content}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1"><User className="h-3 w-3" /><span>{post.profiles?.username || 'Anonymous'}</span></div>
-                      <div className="flex items-center gap-1"><Clock className="h-3 w-3" /><span>{new Date(post.created_at).toLocaleDateString()}</span></div>
-                    </div>
-                  </div>
-                  {isAdmin && (
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(post.id)}>Delete</Button>
-                  )}
-                </div>
-              </Card>
+              <ForumPostCard
+                key={post.id}
+                post={post}
+                categoryColor={category?.color}
+                onDelete={handleDelete}
+                onPin={handlePin}
+              />
             ))}
           </div>
         )}

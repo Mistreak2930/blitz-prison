@@ -31,6 +31,7 @@ const Members = () => {
         setMembers(data || []);
       } catch (error) {
         console.error('Error fetching members:', error);
+        setMembers([]); // Set empty array on error
       } finally {
         setLoading(false);
       }
@@ -53,6 +54,8 @@ const Members = () => {
 
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading members...</div>
+        ) : members.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">No members found.</div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {members.map((member) => (

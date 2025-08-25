@@ -19,6 +19,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          pinned: boolean
           title: string
           updated_at: string
           user_id: string
@@ -27,6 +28,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          pinned?: boolean
           title: string
           updated_at?: string
           user_id: string
@@ -35,6 +37,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          pinned?: boolean
           title?: string
           updated_at?: string
           user_id?: string
@@ -47,27 +50,36 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          likes: number
+          pinned: boolean
           title: string
           updated_at: string
           user_id: string
+          views: number
         }
         Insert: {
           category_id: number
           content: string
           created_at?: string
           id?: string
+          likes?: number
+          pinned?: boolean
           title: string
           updated_at?: string
           user_id: string
+          views?: number
         }
         Update: {
           category_id?: number
           content?: string
           created_at?: string
           id?: string
+          likes?: number
+          pinned?: boolean
           title?: string
           updated_at?: string
           user_id?: string
+          views?: number
         }
         Relationships: [
           {
@@ -84,6 +96,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          pinned: boolean
           title: string
           updated_at: string
           user_id: string
@@ -92,6 +105,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          pinned?: boolean
           title: string
           updated_at?: string
           user_id: string
@@ -100,11 +114,44 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          pinned?: boolean
           title?: string
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      post_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

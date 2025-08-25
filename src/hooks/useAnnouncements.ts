@@ -9,6 +9,7 @@ interface AnnouncementItem {
   user_id: string;
   created_at: string;
   updated_at: string;
+  pinned: boolean;
 }
 
 export const useAnnouncements = () => {
@@ -21,6 +22,7 @@ export const useAnnouncements = () => {
       const { data, error } = await supabase
         .from('announcements')
         .select('*')
+        .order('pinned', { ascending: false })
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -30,6 +32,16 @@ export const useAnnouncements = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const togglePin = async (id: string, pinned: boolean) => {
+    const { error } = await supabase
+      .from('announcements')
+      .update({ pinned: !pinned })
+      .eq('id', id);
+    
+    if (error) throw error;
+    await fetchAnnouncements(); // Refresh the list
   };
 
   const createAnnouncement = async (title: string, content: string) => {
@@ -71,6 +83,7 @@ export const useAnnouncements = () => {
     loading,
     createAnnouncement,
     deleteAnnouncement,
-    fetchAnnouncements
+    fetchAnnouncements,
+    togglePin
   };
 };
