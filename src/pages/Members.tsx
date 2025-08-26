@@ -1,44 +1,16 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/navigation";
 import { User, MessageCircle, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-
-interface Member {
-  id: string;
-  user_id: string;
-  username: string;
-  avatar_url?: string;
-  created_at: string;
-}
+import { useProfiles } from "@/hooks/useProfiles";
 
 const Members = () => {
-  const [members, setMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { profiles, loading } = useProfiles();
   const { user } = useAuth();
-
-  useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .order('created_at', { ascending: false });
-          
-        if (error) throw error;
-        setMembers(data || []);
-      } catch (error) {
-        console.error('Error fetching members:', error);
-        setMembers([]); // Set empty array on error
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMembers();
-  }, []);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,11 +26,11 @@ const Members = () => {
 
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading members...</div>
-        ) : members.length === 0 ? (
+        ) : profiles.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">No members found.</div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {members.map((member) => (
+            {profiles.map((member) => (
               <Card key={member.id} className="p-4 shadow-blocky hover:shadow-hover transition-all">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 rounded-sm bg-card border-2 border-border">
@@ -72,20 +44,35 @@ const Members = () => {
                   </div>
                 </div>
                 
-                <div className="flex gap-2">
-                  {user && user.id !== member.user_id && (
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Chat
-                    </Button>
-                  )}
-                  {user && user.id === member.user_id && (
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Settings className="h-4 w-4 mr-2" />
-                      Edit Profile
-                    </Button>
-                  )}
-                </div>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground mb-3">
+                   <div>Posts: {member.post_count || 0}</div>
+                   <div>Rep: {member.reputation || 0}</div>
+                 </div>
+                
+                 <div className="flex gap-2">
+                   {user && user.id !== member.user_id && (
+                     <Button 
+                       variant="outline" 
+                       size="sm" 
+                       className="flex-1"
+                       onClick={() => navigate(`/profile/${member.user_id}`)}
+                     >
+                       <User className="h-4 w-4 mr-2" />
+                       View Profile
+                     </Button>
+                   )}
+                   {user && user.id === member.user_id && (
+                     <Button 
+                       variant="outline" 
+                       size="sm" 
+                       className="flex-1"
+                       onClick={() => navigate('/profile')}
+                     >
+                       <Settings className="h-4 w-4 mr-2" />
+                       Edit Profile
+                     </Button>
+                   )}
+                 </div>
               </Card>
             ))}
           </div>

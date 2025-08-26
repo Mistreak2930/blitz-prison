@@ -51,16 +51,30 @@ const Navigation = () => {
           <div className="flex items-center space-x-4">
             {user && (
               <>
-                <MinecraftButton variant="ghost" size="sm">
-                  <User className="h-4 w-4 mr-2" />
-                  PROFILE
-                </MinecraftButton>
-                {isAdmin && (
-                  <Link to="/admin">
-                    <MinecraftButton variant="ghost" size="sm">
-                      ADMIN
-                    </MinecraftButton>
-                  </Link>
+                <Link to="/profile">
+                  <MinecraftButton variant="ghost" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    PROFILE
+                  </MinecraftButton>
+                </Link>
+                <Link to="/messages">
+                  <MinecraftButton variant="ghost" size="sm">
+                    MESSAGES
+                  </MinecraftButton>
+                </Link>
+                {(isAdmin) && (
+                  <>
+                    <Link to="/admin">
+                      <MinecraftButton variant="ghost" size="sm">
+                        ADMIN
+                      </MinecraftButton>
+                    </Link>
+                    <Link to="/moderation">
+                      <MinecraftButton variant="ghost" size="sm">
+                        MODERATION
+                      </MinecraftButton>
+                    </Link>
+                  </>
                 )}
               </>
             )}
@@ -132,12 +146,33 @@ const Navigation = () => {
               
               {user ? (
                 <div className="pt-4 border-t border-border space-y-3">
+                  <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
+                    <MinecraftButton variant="ghost" size="sm" className="w-full">
+                      <User className="h-4 w-4 mr-2" />
+                      MY PROFILE
+                    </MinecraftButton>
+                  </Link>
+                  
+                  <Link to="/messages" onClick={() => setIsMenuOpen(false)}>
+                    <MinecraftButton variant="ghost" size="sm" className="w-full">
+                      MESSAGES
+                    </MinecraftButton>
+                  </Link>
+                  
                   {isAdmin && (
-                    <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
-                      <MinecraftButton variant="ghost" size="sm" className="w-full">
-                        ADMIN DASHBOARD
-                      </MinecraftButton>
-                    </Link>
+                    <>
+                      <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
+                        <MinecraftButton variant="ghost" size="sm" className="w-full">
+                          ADMIN DASHBOARD
+                        </MinecraftButton>
+                      </Link>
+                      
+                      <Link to="/moderation" onClick={() => setIsMenuOpen(false)}>
+                        <MinecraftButton variant="ghost" size="sm" className="w-full">
+                          MODERATION
+                        </MinecraftButton>
+                      </Link>
+                    </>
                   )}
                   <MinecraftButton
                     variant="outline"

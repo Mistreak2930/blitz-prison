@@ -91,6 +91,36 @@ export type Database = {
           },
         ]
       }
+      moderation_logs: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          moderator_id: string
+          reason: string
+          target_user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          moderator_id: string
+          reason: string
+          target_user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          moderator_id?: string
+          reason?: string
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           content: string
@@ -153,30 +183,114 @@ export type Database = {
           },
         ]
       }
+      private_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          read: boolean | null
+          recipient_id: string
+          sender_id: string
+          subject: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          read?: boolean | null
+          recipient_id: string
+          sender_id: string
+          subject: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          read?: boolean | null
+          recipient_id?: string
+          sender_id?: string
+          subject?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
+          discord_username: string | null
           id: string
+          last_seen: string | null
+          location: string | null
+          minecraft_username: string | null
+          post_count: number | null
+          reputation: number | null
           updated_at: string
           user_id: string
           username: string
+          website: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          discord_username?: string | null
           id?: string
+          last_seen?: string | null
+          location?: string | null
+          minecraft_username?: string | null
+          post_count?: number | null
+          reputation?: number | null
           updated_at?: string
           user_id: string
           username: string
+          website?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          discord_username?: string | null
           id?: string
+          last_seen?: string | null
+          location?: string | null
+          minecraft_username?: string | null
+          post_count?: number | null
+          reputation?: number | null
           updated_at?: string
           user_id?: string
           username?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      user_activity: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string
         }
         Relationships: []
       }

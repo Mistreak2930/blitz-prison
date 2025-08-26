@@ -11,6 +11,9 @@ import Auth from "./pages/Auth";
 import ForumCategory from "./pages/ForumCategory";
 import Members from "./pages/Members";
 import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
+import Messages from "./pages/Messages";
+import ModerationDashboard from "./pages/ModerationDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +33,10 @@ const App = () => (
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:userId" element={<Profile />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/moderation" element={<ModerationDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

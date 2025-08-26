@@ -44,6 +44,7 @@ All colors MUST be HSL.
     /* Gaming-specific colors */
     --gaming-orange: 25 85% 60%;
     --gaming-purple: 270 70% 65%;
+    --gaming-gold: 45 90% 60%;
     --mining-gray: 220 15% 25%;
     
     /* Gradients and effects */
