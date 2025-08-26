@@ -43,7 +43,7 @@ const Profile = () => {
       try {
         const targetUserId = userId || user?.id;
         if (!targetUserId) {
-          navigate('/auth');
+          navigate('/profile');
           return;
         }
 
