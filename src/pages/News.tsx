@@ -55,9 +55,9 @@ const News = () => {
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-black text-foreground mb-4">PRISON NEWS & UPDATES</h1>
+          <h1 className="text-4xl font-black text-foreground mb-4">Blitz Prison News</h1>
           <p className="text-muted-foreground text-lg">
-            Stay informed about the latest updates, features, and events on Blitz Prison.
+            Get News and Updates on the latest Blitz Info!.
           </p>
         </div>
 
