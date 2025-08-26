@@ -79,7 +79,7 @@ const AdminDashboard = () => {
           <div className="text-center py-8">
             <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-foreground mb-2">Access Denied</h1>
-            <p className="text-muted-foreground">You need admin privileges to access this page.</p>
+            <p className="text-muted-foreground">You don't have permission to view this page.</p>
           </div>
         </main>
       </div>
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
         <div className="mb-8">
           <h1 className="text-4xl font-black text-foreground mb-4">ADMIN DASHBOARD</h1>
           <p className="text-muted-foreground text-lg">
-            Manage user roles and permissions for the Blitz Prison community.
+          Manage the Blitz Community
           </p>
         </div>
 
@@ -184,7 +184,7 @@ const AdminDashboard = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="h-5 w-5" />
-                System Information
+                Blitz Information
               </CardTitle>
             </CardHeader>
             <CardContent>
