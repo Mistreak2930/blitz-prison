@@ -14,6 +14,7 @@ import { Shield, AlertTriangle, Eye, Ban, MessageSquareX, Trash2, Clock, User } 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useIsAdmin } from '@/hooks/useUserRole';
+import { useRoles } from '@/hooks/useRoles';
 
 const ModerationDashboard = () => {
   const { logs, loading, logAction } = useModerationLogs();

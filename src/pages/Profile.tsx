@@ -58,14 +58,17 @@ const Profile = () => {
         }
 
         setProfile(profileData);
-        setFormData({
-          username: profileData.username || '',
-          bio: profileData.bio || '',
-          location: profileData.location || '',
-          website: profileData.website || '',
-          minecraft_username: profileData.minecraft_username || '',
-          discord_username: profileData.discord_username || ''
-        });
+        // Only update form data if not currently editing
+        if (!editing) {
+          setFormData({
+            username: profileData.username || '',
+            bio: profileData.bio || '',
+            location: profileData.location || '',
+            website: profileData.website || '',
+            minecraft_username: profileData.minecraft_username || '',
+            discord_username: profileData.discord_username || ''
+          });
+        }
       } catch (error) {
         console.error('Error loading profile:', error);
       } finally {
@@ -74,7 +77,7 @@ const Profile = () => {
     };
 
     loadProfile();
-  }, [userId, user, getProfile, navigate, toast]);
+  }, [userId, user?.id]); // Removed dependencies that cause unnecessary re-renders
 
   const handleUpdateProfile = async () => {
     try {

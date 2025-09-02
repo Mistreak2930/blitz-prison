@@ -1,205 +1,253 @@
-import Navigation from "@/components/navigation";
-import { MinecraftButton } from "@/components/ui/minecraft-button";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button"; 
+import { Badge } from "@/components/ui/badge";
+import { useNews } from "@/hooks/useNews";
+import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { useProfiles } from "@/hooks/useProfiles";
+import { useServerStatus } from "@/hooks/useServerStatus";
+import { useAuth } from "@/hooks/useAuth";
 import heroImage from "@/assets/blitz-prison-hero.jpg";
 import { 
+  Server, 
   Users, 
-  Zap, 
-  Shield, 
-  Trophy, 
-  MessageSquare, 
-  Newspaper,
-  Megaphone,
-  Server,
-  Crown,
-  Pickaxe
+  Newspaper, 
+  Megaphone, 
+  Clock, 
+  User,
+  Trophy,
+  MessageSquare,
+  TrendingUp,
+  Activity
 } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const Index = () => {
-  const features = [
-    {
-      icon: Pickaxe,
-      title: "Advanced Mining",
-      description: "Unique mining system with custom enchants and progression"
-    },
-    {
-      icon: Shield,
-      title: "Prison Ranks",
-      description: "Work your way up through 26 prison ranks with exclusive perks"
-    },
-    {
-      icon: Trophy,
-      title: "Competitions",
-      description: "Daily and weekly competitions with amazing rewards"
-    },
-    {
-      icon: Users,
-      title: "Active Community",
-      description: "Join thousands of players in our thriving prison community"
-    }
-  ];
+  const { news } = useNews();
+  const { announcements } = useAnnouncements();
+  const { profiles } = useProfiles();
+  const { servers } = useServerStatus();
+  const { user } = useAuth();
 
-  const stats = [
-    { label: "Players Online", value: "1,247", icon: Users },
-    { label: "Total Registered", value: "45,892", icon: Crown },
-    { label: "Mines Available", value: "26", icon: Pickaxe },
-    { label: "Server Uptime", value: "99.9%", icon: Server }
-  ];
+  const latestNews = news.slice(0, 3);
+  const latestAnnouncements = announcements.slice(0, 2);
+  const newestMembers = profiles
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 5);
+  
+  const onlineServers = servers.filter(s => s.online);
+  const totalPlayers = servers.reduce((sum, server) => sum + (server.online ? server.players : 0), 0);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
+    <div className="space-y-8">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-dark opacity-80"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32 text-center">
-          <h1 className="text-5xl lg:text-7xl font-black text-foreground mb-6 leading-tight">
-            BLITZ
-            <span className="block text-primary">PRISON</span>
+      <div className="relative h-96 rounded-lg overflow-hidden">
+        <img 
+          src={heroImage} 
+          alt="Blitz Network Hero" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
+        <div className="absolute inset-0 flex flex-col justify-center px-8">
+          <h1 className="text-6xl font-black text-white mb-4 drop-shadow-lg">
+            BLITZ NETWORK
           </h1>
-          
-          <p className="text-xl lg:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            Experience the ultimate Minecraft prison server with custom features, 
-            competitive gameplay, and an amazing community.
+          <p className="text-xl text-white/90 mb-6 max-w-2xl drop-shadow-md">
+            The ultimate Minecraft server network with Prison, Skyblock, and more! 
+            Join thousands of players in our community.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <MinecraftButton variant="hero" size="xl">
-              JOIN NOW: blitzprison.minefort.com
-            </MinecraftButton>
-            <MinecraftButton variant="outline" size="xl">
-              View Server Info
-            </MinecraftButton>
+          <div className="flex gap-4">
+            <Button size="lg" className="bg-primary hover:bg-primary/90">
+              <MessageSquare className="h-5 w-5 mr-2" />
+              Join Forums
+            </Button>
+            <Button size="lg" variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+              <Server className="h-5 w-5 mr-2" />
+              View Servers
+            </Button>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div key={index} className="text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-primary text-primary-foreground rounded-sm shadow-blocky mb-4">
-                    <Icon className="h-8 w-8" />
-                  </div>
-                  <div className="text-3xl font-black text-foreground mb-2">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-sm bg-primary/10 border border-primary/20">
+              <Server className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Online Servers</p>
+              <p className="text-2xl font-bold text-foreground">{onlineServers.length}</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-sm bg-gaming-green/10 border border-gaming-green/20">
+              <Users className="h-5 w-5 text-gaming-green" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Players Online</p>
+              <p className="text-2xl font-bold text-foreground">{totalPlayers}</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-sm bg-gaming-blue/10 border border-gaming-blue/20">
+              <MessageSquare className="h-5 w-5 text-gaming-blue" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Total Members</p>
+              <p className="text-2xl font-bold text-foreground">{profiles.length}</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-sm bg-gaming-purple/10 border border-gaming-purple/20">
+              <Activity className="h-5 w-5 text-gaming-purple" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Network Status</p>
+              <p className="text-2xl font-bold text-gaming-green">ONLINE</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Server Status Widget */}
+        <Card className="p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Server className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold text-foreground">Server Status</h2>
+          </div>
+          
+          <div className="space-y-3">
+            {servers.slice(0, 3).map((server) => (
+              <div key={server.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-sm">
+                <div>
+                  <p className="font-medium text-foreground">{server.name}</p>
+                  <p className="text-sm text-muted-foreground">{server.ip}</p>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-black text-foreground mb-4">WHY CHOOSE BLITZ PRISON?</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              We've built the most advanced prison server with unique features you won't find anywhere else.
-            </p>
+                <div className="text-right">
+                  <Badge variant={server.online ? "default" : "destructive"}>
+                    {server.online ? "Online" : "Offline"}
+                  </Badge>
+                  {server.online && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {server.players}/{server.maxPlayers}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <Card key={index} className="p-6 text-center shadow-blocky hover:shadow-hover transition-all hover:translate-y-[-2px]">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-accent text-accent-foreground rounded-sm shadow-accent mb-4">
-                    <Icon className="h-8 w-8" />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground mb-3">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+          <Button className="w-full mt-4" variant="outline">
+            View All Servers
+          </Button>
+        </Card>
 
-      {/* Quick Links Section */}
-      <section className="py-16 bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-black text-foreground mb-4">EXPLORE THE COMMUNITY</h2>
-            <p className="text-lg text-muted-foreground">
-              Stay connected with the latest updates, discuss strategies, and connect with other players.
-            </p>
+        {/* Latest News Widget */}
+        <Card className="p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Newspaper className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold text-foreground">Latest News</h2>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            <Link to="/forums" className="group">
-              <Card className="p-8 text-center shadow-blocky hover:shadow-hover transition-all hover:translate-y-[-2px] group-hover:border-primary">
-                <MessageSquare className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-foreground mb-3">Forums</h3>
-                <p className="text-muted-foreground mb-4">
-                  Join discussions, share strategies, and connect with the community.
-                </p>
-                <MinecraftButton variant="outline" size="sm">
-                  Visit Forums
-                </MinecraftButton>
-              </Card>
-            </Link>
-            
-            <Link to="/news" className="group">
-              <Card className="p-8 text-center shadow-blocky hover:shadow-hover transition-all hover:translate-y-[-2px] group-hover:border-accent">
-                <Newspaper className="h-12 w-12 text-accent mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-foreground mb-3">News & Updates</h3>
-                <p className="text-muted-foreground mb-4">
-                  Stay informed about the latest features, events, and improvements.
-                </p>
-                <MinecraftButton variant="accent" size="sm">
-                  Read News
-                </MinecraftButton>
-              </Card>
-            </Link>
-            
-            <Link to="/announcements" className="group">
-              <Card className="p-8 text-center shadow-blocky hover:shadow-hover transition-all hover:translate-y-[-2px] group-hover:border-gaming-orange">
-                <Megaphone className="h-12 w-12 text-gaming-orange mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-foreground mb-3">Announcements</h3>
-                <p className="text-muted-foreground mb-4">
-                  Important server announcements and official notices.
-                </p>
-                <MinecraftButton variant="outline" size="sm">
-                  View Announcements
-                </MinecraftButton>
-              </Card>
-            </Link>
+          <div className="space-y-4">
+            {latestNews.map((item) => (
+              <div key={item.id} className="border-b border-border last:border-0 pb-3 last:pb-0">
+                <h3 className="font-medium text-foreground line-clamp-2 mb-1">
+                  {item.title}
+                </h3>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  <span>{new Date(item.created_at).toLocaleDateString()}</span>
+                  {item.pinned && (
+                    <Badge variant="secondary" className="text-xs">Pinned</Badge>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      </section>
+          
+          <Button className="w-full mt-4" variant="outline">
+            View All News
+          </Button>
+        </Card>
 
-      {/* Footer */}
-      <footer className="bg-background border-t-2 border-border py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Pickaxe className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-black text-foreground">BLITZ PRISON</span>
+        {/* Newest Members Widget */}
+        <Card className="p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Users className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold text-foreground">Newest Members</h2>
           </div>
-          <p className="text-muted-foreground mb-6">
-            The ultimate Minecraft prison experience • Server IP: play.blitzprison.net
-          </p>
-          <div className="flex justify-center space-x-4">
-            <MinecraftButton variant="ghost" size="sm">Discord</MinecraftButton>
-            <MinecraftButton variant="ghost" size="sm">Rules</MinecraftButton>
-            <MinecraftButton variant="ghost" size="sm">Store</MinecraftButton>
-            <MinecraftButton variant="ghost" size="sm">Support</MinecraftButton>
+          
+          <div className="space-y-3">
+            {newestMembers.map((member) => (
+              <div key={member.id} className="flex items-center gap-3">
+                <div className="p-2 rounded-sm bg-card border border-border">
+                  <User className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-foreground">{member.username}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Joined {new Date(member.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <Badge variant="secondary">
+                  <Trophy className="h-3 w-3 mr-1" />
+                  {member.reputation}
+                </Badge>
+              </div>
+            ))}
           </div>
-        </div>
-      </footer>
+          
+          <Button className="w-full mt-4" variant="outline">
+            View All Members
+          </Button>
+        </Card>
+      </div>
+
+      {/* Announcements Section */}
+      {latestAnnouncements.length > 0 && (
+        <Card className="p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Megaphone className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold text-foreground">Important Announcements</h2>
+          </div>
+          
+          <div className="space-y-4">
+            {latestAnnouncements.map((announcement) => (
+              <div key={announcement.id} className="p-4 bg-muted/50 rounded-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-bold text-foreground">{announcement.title}</h3>
+                  {announcement.pinned && (
+                    <Badge variant="secondary">Pinned</Badge>
+                  )}
+                </div>
+                <p className="text-muted-foreground mb-2 line-clamp-2">
+                  {announcement.content}
+                </p>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  <span>{new Date(announcement.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <Button className="w-full mt-4" variant="outline">
+            View All Announcements
+          </Button>
+        </Card>
+      )}
     </div>
   );
 };
