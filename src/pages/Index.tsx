@@ -113,7 +113,7 @@ const Index = () => {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Network Status</p>
-              <p className="text-2xl font-bold text-gaming-green">ONLINE</p>
+              <p className="text-2xl font-bold text-gaming-green">OFFLINE</p>
             </div>
           </div>
         </Card>
