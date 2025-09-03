@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"; 
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 
 const Index = () => {
+  const navigate = useNavigate();
   const { news } = useNews();
   const { announcements } = useAnnouncements();
   const { profiles } = useProfiles();
@@ -56,11 +58,11 @@ const Index = () => {
             Join thousands of players in our community.
           </p>
           <div className="flex gap-4">
-            <Button size="lg" className="bg-primary hover:bg-primary/90">
+            <Button size="lg" className="bg-primary hover:bg-primary/90" onClick={() => navigate('/forums')}>
               <MessageSquare className="h-5 w-5 mr-2" />
               Join Forums
             </Button>
-            <Button size="lg" variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+            <Button size="lg" variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20" onClick={() => navigate('/servers')}>
               <Server className="h-5 w-5 mr-2" />
               View Servers
             </Button>
@@ -148,7 +150,7 @@ const Index = () => {
             ))}
           </div>
           
-          <Button className="w-full mt-4" variant="outline">
+          <Button className="w-full mt-4" variant="outline" onClick={() => navigate('/servers')}>
             View All Servers
           </Button>
         </Card>
@@ -177,7 +179,7 @@ const Index = () => {
             ))}
           </div>
           
-          <Button className="w-full mt-4" variant="outline">
+          <Button className="w-full mt-4" variant="outline" onClick={() => navigate('/news')}>
             View All News
           </Button>
         </Card>
@@ -209,7 +211,7 @@ const Index = () => {
             ))}
           </div>
           
-          <Button className="w-full mt-4" variant="outline">
+          <Button className="w-full mt-4" variant="outline" onClick={() => navigate('/members')}>
             View All Members
           </Button>
         </Card>
@@ -243,7 +245,7 @@ const Index = () => {
             ))}
           </div>
           
-          <Button className="w-full mt-4" variant="outline">
+          <Button className="w-full mt-4" variant="outline" onClick={() => navigate('/announcements')}>
             View All Announcements
           </Button>
         </Card>

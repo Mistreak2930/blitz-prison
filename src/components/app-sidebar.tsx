@@ -1,8 +1,9 @@
-import { Home, Users, MessageSquare, Newspaper, Megaphone, Server, Shield, Settings } from "lucide-react";
+import { Home, Users, MessageSquare, Newspaper, Megaphone, Server, Shield, Settings, LogOut, LogIn } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useUserRole";
 import { useRoles } from "@/hooks/useRoles";
+import { useToast } from "@/hooks/use-toast";
 
 import {
   Sidebar,
@@ -33,9 +34,10 @@ const userItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { isAdmin } = useIsAdmin();
   const { hasRole } = useRoles();
+  const { toast } = useToast();
   const currentPath = location.pathname;
 
   const isCollapsed = state === "collapsed";
@@ -44,6 +46,22 @@ export function AppSidebar() {
     isActive ? "bg-primary/10 text-primary border border-primary/20" : "hover:bg-muted/50";
 
   const canModerate = isAdmin || (user && hasRole(user.id, 'moderator'));
+  
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out",
+      });
+    }
+  };
 
   return (
     <Sidebar
@@ -127,6 +145,31 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         )}
+
+        {/* Auth Section */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {user ? (
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4" />
+                    {!isCollapsed && <span className="font-medium">Logout</span>}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ) : (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/auth" className={getNavCls}>
+                      <LogIn className="h-4 w-4" />
+                      {!isCollapsed && <span className="font-medium">Login</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );

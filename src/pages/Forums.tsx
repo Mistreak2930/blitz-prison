@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { MinecraftButton } from "@/components/ui/minecraft-button";
 import { Button } from "@/components/ui/button";
-import Navigation from "@/components/navigation";
 import { MessageSquare, Users, Lock, Star, Zap, Plus, Clock, User, Trash2, Eye } from "lucide-react";
 import { CreatePostModal } from "@/components/CreatePostModal";
 import { useForumPosts } from "@/hooks/useForumPosts";
@@ -82,18 +81,15 @@ const Forums = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-black text-foreground mb-4">PRISON FORUMS</h1>
-          <p className="text-muted-foreground text-lg">
-            Connect with other prisoners, share strategies, and stay updated with the community.
-          </p>
-        </div>
+    <div className="space-y-8">
+      <div className="mb-8">
+        <h1 className="text-4xl font-black text-foreground mb-4">PRISON FORUMS</h1>
+        <p className="text-muted-foreground text-lg">
+          Connect with other prisoners, share strategies, and stay updated with the community.
+        </p>
+      </div>
 
-        <div className="grid gap-6">
+      <div className="grid gap-6">
           {forumCategories.map((category) => {
             const Icon = category.icon;
             const categoryPosts = posts.filter(post => post.category_id === category.id);
@@ -138,22 +134,20 @@ const Forums = () => {
               </Card>
             );
           })}
+      </div>
+
+      {user && (
+        <div className="mt-12 text-center">
+          <MinecraftButton 
+            variant="hero" 
+            size="xl"
+            onClick={() => setShowCreateModal(true)}
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Create New Post
+          </MinecraftButton>
         </div>
-
-
-        {user && (
-          <div className="mt-12 text-center">
-            <MinecraftButton 
-              variant="hero" 
-              size="xl"
-              onClick={() => setShowCreateModal(true)}
-            >
-              <Plus className="h-5 w-5 mr-2" />
-              Create New Post
-            </MinecraftButton>
-          </div>
-        )}
-      </main>
+      )}
 
       {/* Create Post Modal */}
       <CreatePostModal
