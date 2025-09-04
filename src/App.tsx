@@ -15,6 +15,7 @@ import Members from "./pages/Members";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import Messages from "./pages/Messages";
+import NewMessages from "./pages/NewMessages";
 import ModerationDashboard from "./pages/ModerationDashboard";
 import Servers from "./pages/Servers";
 import NotFound from "./pages/NotFound";
@@ -49,7 +50,7 @@ const App = () => (
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/profile/:userId" element={<Profile />} />
-                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/messages" element={<NewMessages />} />
                   <Route path="/moderation" element={<ModerationDashboard />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>

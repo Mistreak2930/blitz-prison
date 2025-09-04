@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MinecraftButton } from '@/components/ui/minecraft-button';
-import Navigation from '@/components/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import heroImage from "@/assets/blitz-prison-hero.jpg";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -69,32 +69,45 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative">
+      {/* Background Hero Image */}
+      <div className="absolute inset-0 opacity-5">
+        <img 
+          src={heroImage} 
+          alt="Background" 
+          className="w-full h-full object-cover"
+        />
+      </div>
       
-      <main className="max-w-md mx-auto px-4 py-16">
-        <Card className="shadow-blocky">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-black text-foreground">
-              {isLogin ? 'LOGIN' : 'SIGN UP'}
-            </CardTitle>
-            <CardDescription>
-              {isLogin ? 'Login to Blitz prison' : 'Create your free Blitz prison account'}
-            </CardDescription>
-          </CardHeader>
+      <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-8">
+        <div className="w-full max-w-md">
+          <Card className="shadow-blocky border-2 border-border backdrop-blur-sm bg-card/95">
+            <CardHeader className="text-center pb-2">
+              <div className="mb-4">
+                <span className="text-4xl font-black text-primary">⛏</span>
+                <h1 className="text-2xl font-black text-foreground mt-2">BLITZ NETWORK</h1>
+              </div>
+              <CardTitle className="text-xl font-bold text-foreground">
+                {isLogin ? 'WELCOME BACK' : 'JOIN THE NETWORK'}
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                {isLogin ? 'Login to your account' : 'Create your free account and join thousands of players'}
+              </CardDescription>
+            </CardHeader>
           
-          <CardContent>
+          <CardContent className="pt-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="username">Prison Name</Label>
+                  <Label htmlFor="username">Username</Label>
                   <Input
                     id="username"
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter your minecraft Username"
+                    placeholder="Choose your username"
                     required
+                    className="border-2"
                   />
                 </div>
               )}
@@ -108,6 +121,7 @@ const Auth = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
+                  className="border-2"
                 />
               </div>
               
@@ -120,15 +134,17 @@ const Auth = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   required
+                  className="border-2"
                 />
               </div>
               
               <MinecraftButton 
                 type="submit" 
-                className="w-full" 
+                className="w-full text-lg py-6" 
                 disabled={loading}
+                variant="hero"
               >
-                {loading ? 'PROCESSING...' : (isLogin ? 'LOGIN' : 'CREATE ACCOUNT')}
+                {loading ? 'PROCESSING...' : (isLogin ? 'ENTER NETWORK' : 'JOIN NETWORK')}
               </MinecraftButton>
             </form>
             
@@ -145,7 +161,7 @@ const Auth = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full mt-4"
+                className="w-full mt-4 border-2"
                 onClick={async () => {
                   const { error } = await signInWithGitHub();
                   if (error) {
@@ -175,9 +191,10 @@ const Auth = () => {
                 {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
               </Button>
             </div>
-          </CardContent>
-        </Card>
-      </main>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
