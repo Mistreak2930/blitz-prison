@@ -105,15 +105,28 @@ export const useChats = () => {
         (data || []).map(async (conversation: any) => {
           const { data: participants } = await supabase
             .from('chat_participants')
-            .select(`
-              *,
-              profiles(username, avatar_url)
-            `)
+            .select('*')
             .eq('conversation_id', conversation.id);
+
+          // Fetch profile for each participant
+          const participantsWithProfiles = await Promise.all(
+            (participants || []).map(async (participant: any) => {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('username, avatar_url')
+                .eq('user_id', participant.user_id)
+                .single();
+
+              return {
+                ...participant,
+                profile
+              };
+            })
+          );
 
           return {
             ...conversation,
-            participants: participants || []
+            participants: participantsWithProfiles
           };
         })
       );
@@ -130,24 +143,41 @@ export const useChats = () => {
     if (!user) return null;
 
     try {
-      // Check if direct chat already exists
-      const { data: existingChat } = await supabase
-        .from('chat_conversations')
-        .select(`
-          *,
-          participants:chat_participants(user_id)
-        `)
-        .eq('type', 'direct')
-        .filter('participants.user_id', 'in', `(${user.id},${recipientId})`);
+      // Check if direct chat already exists - get all direct conversations for current user
+      const { data: myConversations, error: myConvError } = await supabase
+        .from('chat_participants')
+        .select('conversation_id')
+        .eq('user_id', user.id);
 
-      const directChat = existingChat?.find(chat => 
-        chat.participants?.length === 2 &&
-        chat.participants.some(p => p.user_id === user.id) &&
-        chat.participants.some(p => p.user_id === recipientId)
-      );
+      if (myConvError) throw myConvError;
 
-      if (directChat) {
-        return directChat;
+      if (myConversations && myConversations.length > 0) {
+        const conversationIds = myConversations.map(c => c.conversation_id);
+        
+        // Check if any of these conversations are direct chats with the recipient
+        const { data: existingDirectChats, error: existingError } = await supabase
+          .from('chat_conversations')
+          .select(`
+            *,
+            chat_participants!inner(user_id)
+          `)
+          .eq('type', 'direct')
+          .in('id', conversationIds);
+
+        if (existingError) throw existingError;
+
+        // Find a direct chat that includes both users
+        for (const chat of existingDirectChats || []) {
+          const { data: participants } = await supabase
+            .from('chat_participants')
+            .select('user_id')
+            .eq('conversation_id', chat.id);
+
+          const userIds = participants?.map(p => p.user_id) || [];
+          if (userIds.length === 2 && userIds.includes(user.id) && userIds.includes(recipientId)) {
+            return chat;
+          }
+        }
       }
 
       // Create new conversation
@@ -285,16 +315,29 @@ export const useChatMessages = (conversationId?: string) => {
           // Fetch reactions
           const { data: reactions } = await supabase
             .from('message_reactions')
-            .select(`
-              *,
-              profiles(username)
-            `)
+            .select('*')
             .eq('message_id', message.id);
+
+          // Fetch profile for each reaction
+          const reactionsWithProfiles = await Promise.all(
+            (reactions || []).map(async (reaction: any) => {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('username')
+                .eq('user_id', reaction.user_id)
+                .single();
+
+              return {
+                ...reaction,
+                profile
+              };
+            })
+          );
 
           return {
             ...message,
             sender_profile: senderProfile,
-            reactions: reactions || []
+            reactions: reactionsWithProfiles || []
           };
         })
       );

@@ -1,91 +1,115 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import Navigation from '@/components/navigation';
+import { Textarea } from '@/components/ui/textarea';
 import { useModerationLogs } from '@/hooks/useModerationLogs';
 import { useProfiles } from '@/hooks/useProfiles';
+import { useForumPosts } from '@/hooks/useForumPosts';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, AlertTriangle, Eye, Ban, MessageSquareX, Trash2, Clock, User } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Navigation from '@/components/navigation';
 import { useIsAdmin } from '@/hooks/useUserRole';
-import { useRoles } from '@/hooks/useRoles';
+import { 
+  Shield, 
+  AlertTriangle, 
+  Eye, 
+  Trash2, 
+  UserX, 
+  MessageSquare,
+  Activity,
+  Flag,
+  Clock,
+  User,
+  FileText,
+  Ban
+} from 'lucide-react';
 
 const ModerationDashboard = () => {
-  const { logs, loading, logAction } = useModerationLogs();
+  const { logs, logAction } = useModerationLogs();
   const { profiles } = useProfiles();
+  const { posts } = useForumPosts();
   const { user } = useAuth();
   const { toast } = useToast();
   const { isAdmin } = useIsAdmin();
-  const { hasRole } = useRoles();
   
-  const [showLogModal, setShowLogModal] = useState(false);
-  const [logData, setLogData] = useState({
-    targetUserId: '',
-    actionType: '',
-    reason: '',
-    details: ''
-  });
+  const [selectedUser, setSelectedUser] = useState<string>('');
+  const [actionType, setActionType] = useState<string>('');
+  const [actionReason, setActionReason] = useState('');
+  const [showActionDialog, setShowActionDialog] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const canModerate = isAdmin || (user && hasRole(user.id, 'moderator'));
+  const canModerate = isAdmin;
 
-  const handleLogAction = async () => {
-    if (!logData.actionType || !logData.reason.trim()) {
+  const handleModerationAction = async () => {
+    if (!selectedUser || !actionType || !actionReason.trim()) {
       toast({
-        title: "Missing fields",
-        description: "Please fill in action type and reason",
+        title: "Missing information", 
+        description: "Please fill in all fields",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      await logAction(
-        logData.targetUserId || null,
-        logData.actionType,
-        logData.reason,
-        logData.details ? JSON.parse(logData.details) : null
-      );
+      await logAction(selectedUser, actionType, actionReason);
       
       toast({
         title: "Action logged",
-        description: "Moderation action has been recorded"
+        description: `Moderation action has been recorded`
       });
-      
-      setShowLogModal(false);
-      setLogData({ targetUserId: '', actionType: '', reason: '', details: '' });
+
+      setShowActionDialog(false);
+      setSelectedUser('');
+      setActionType('');
+      setActionReason('');
     } catch (error) {
       toast({
-        title: "Error logging action",
+        title: "Error",
+        description: "Failed to log moderation action",
         variant: "destructive"
       });
     }
   };
 
   const getActionIcon = (actionType: string) => {
-    switch (actionType) {
-      case 'warn': return <AlertTriangle className="h-4 w-4" />;
-      case 'mute': return <MessageSquareX className="h-4 w-4" />;
-      case 'ban': return <Ban className="h-4 w-4" />;
-      case 'delete_post': return <Trash2 className="h-4 w-4" />;
-      default: return <Shield className="h-4 w-4" />;
+    switch (actionType.toLowerCase()) {
+      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      case 'ban': return <UserX className="h-4 w-4 text-red-500" />;
+      case 'post_removed': return <Trash2 className="h-4 w-4 text-red-500" />;
+      case 'timeout': return <Clock className="h-4 w-4 text-orange-500" />;
+      case 'role_assigned':
+      case 'role_removed': return <Shield className="h-4 w-4 text-blue-500" />;
+      default: return <Activity className="h-4 w-4 text-primary" />;
     }
   };
 
   const getActionColor = (actionType: string) => {
-    switch (actionType) {
-      case 'warn': return 'bg-gaming-orange';
-      case 'mute': return 'bg-gaming-purple';
-      case 'ban': return 'bg-destructive';
-      case 'delete_post': return 'bg-muted';
-      default: return 'bg-primary';
+    switch (actionType.toLowerCase()) {
+      case 'warning': return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
+      case 'ban': return 'bg-red-500/10 text-red-500 border-red-500/20';
+      case 'post_removed': return 'bg-red-500/10 text-red-500 border-red-500/20';
+      case 'timeout': return 'bg-orange-500/10 text-orange-500 border-orange-500/20';
+      case 'role_assigned':
+      case 'role_removed': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
+
+  const filteredLogs = logs.filter(log => 
+    log.action_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    log.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    log.moderator_profile?.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    log.target_profile?.username.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const recentActions = logs.slice(0, 5);
+  const totalPosts = posts.length;
+  const totalUsers = profiles.length;
 
   if (!canModerate) {
     return (
@@ -102,15 +126,6 @@ const ModerationDashboard = () => {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="text-center py-8 text-muted-foreground">Loading moderation data...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -118,96 +133,74 @@ const ModerationDashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-black text-foreground mb-4">MODERATION DASHBOARD</h1>
-            <p className="text-muted-foreground text-lg">
-              Manage community moderation and track moderation actions.
-            </p>
+            <h1 className="text-4xl font-black text-foreground mb-2">MODERATION DASHBOARD</h1>
+            <p className="text-muted-foreground">Monitor and manage community content</p>
           </div>
           
-          <Dialog open={showLogModal} onOpenChange={setShowLogModal}>
-            <DialogTrigger asChild>
-              <Button>
-                <Shield className="h-4 w-4 mr-2" />
-                Log Action
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Log Moderation Action</DialogTitle>
-              </DialogHeader>
-              
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="actionType">Action Type</Label>
-                  <Select value={logData.actionType} onValueChange={(value) => 
-                    setLogData({...logData, actionType: value})
-                  }>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select action type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="warn">Warning</SelectItem>
-                      <SelectItem value="mute">Mute User</SelectItem>
-                      <SelectItem value="ban">Ban User</SelectItem>
-                      <SelectItem value="delete_post">Delete Post</SelectItem>
-                      <SelectItem value="edit_content">Edit Content</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+          <div className="flex gap-2">
+            <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Shield className="h-4 w-4 mr-2" />
+                  Log Action
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Log Moderation Action</DialogTitle>
+                </DialogHeader>
                 
-                <div>
-                  <Label htmlFor="targetUser">Target User (Optional)</Label>
-                  <Select value={logData.targetUserId} onValueChange={(value) => 
-                    setLogData({...logData, targetUserId: value})
-                  }>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select user (optional)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {profiles.map((profile) => (
-                        <SelectItem key={profile.user_id} value={profile.user_id}>
-                          {profile.username}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="reason">Reason</Label>
-                  <Textarea
-                    id="reason"
-                    value={logData.reason}
-                    onChange={(e) => setLogData({...logData, reason: e.target.value})}
-                    placeholder="Reason for this action..."
-                    rows={3}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="details">Additional Details (JSON)</Label>
-                  <Textarea
-                    id="details"
-                    value={logData.details}
-                    onChange={(e) => setLogData({...logData, details: e.target.value})}
-                    placeholder='{"post_id": "123", "duration": "24h"}'
-                    rows={2}
-                  />
-                </div>
-                
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setShowLogModal(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleLogAction}>
-                    <Shield className="h-4 w-4 mr-2" />
+                <div className="space-y-4">
+                  <div>
+                    <Label>Select User</Label>
+                    <Select value={selectedUser} onValueChange={setSelectedUser}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose a user" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {profiles.map((profile) => (
+                          <SelectItem key={profile.user_id} value={profile.user_id}>
+                            {profile.username}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>Action Type</Label>
+                    <Select value={actionType} onValueChange={setActionType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select action type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="warning">Warning</SelectItem>
+                        <SelectItem value="timeout">Timeout</SelectItem>
+                        <SelectItem value="ban">Ban</SelectItem>
+                        <SelectItem value="post_removed">Post Removed</SelectItem>
+                        <SelectItem value="content_warning">Content Warning</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>Reason</Label>
+                    <Textarea
+                      value={actionReason}
+                      onChange={(e) => setActionReason(e.target.value)}
+                      placeholder="Explain the reason for this action"
+                      rows={3}
+                    />
+                  </div>
+
+                  <Button onClick={handleModerationAction} className="w-full">
                     Log Action
                   </Button>
                 </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Moderation Stats */}
