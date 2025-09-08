@@ -12,7 +12,7 @@ import { useProfiles } from '@/hooks/useProfiles';
 import { useForumPosts } from '@/hooks/useForumPosts';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import Navigation from '@/components/navigation';
+
 import { useIsAdmin } from '@/hooks/useUserRole';
 import { 
   Shield, 
@@ -112,10 +112,9 @@ const ModerationDashboard = () => {
   const totalUsers = profiles.length;
 
   if (!canModerate) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  return (
+    <div className="min-h-screen bg-background">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-12">
             <Shield className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
             <h2 className="text-2xl font-bold text-foreground mb-2">Access Denied</h2>
@@ -128,8 +127,6 @@ const ModerationDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
-      
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>

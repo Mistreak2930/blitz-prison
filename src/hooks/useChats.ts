@@ -143,39 +143,35 @@ export const useChats = () => {
     if (!user) return null;
 
     try {
-      // Check if direct chat already exists - get all direct conversations for current user
-      const { data: myConversations, error: myConvError } = await supabase
+      // Check if direct chat already exists
+      const { data: existingConversations, error: existingError } = await supabase
         .from('chat_participants')
-        .select('conversation_id')
+        .select(`
+          conversation_id,
+          chat_conversations!inner(
+            id,
+            type,
+            name,
+            created_by,
+            created_at,
+            updated_at
+          )
+        `)
         .eq('user_id', user.id);
 
-      if (myConvError) throw myConvError;
+      if (existingError) throw existingError;
 
-      if (myConversations && myConversations.length > 0) {
-        const conversationIds = myConversations.map(c => c.conversation_id);
-        
-        // Check if any of these conversations are direct chats with the recipient
-        const { data: existingDirectChats, error: existingError } = await supabase
-          .from('chat_conversations')
-          .select(`
-            *,
-            chat_participants!inner(user_id)
-          `)
-          .eq('type', 'direct')
-          .in('id', conversationIds);
-
-        if (existingError) throw existingError;
-
-        // Find a direct chat that includes both users
-        for (const chat of existingDirectChats || []) {
+      // Check if any existing conversation is a direct chat with this recipient
+      for (const conv of existingConversations || []) {
+        if (conv.chat_conversations.type === 'direct') {
           const { data: participants } = await supabase
             .from('chat_participants')
             .select('user_id')
-            .eq('conversation_id', chat.id);
+            .eq('conversation_id', conv.conversation_id);
 
           const userIds = participants?.map(p => p.user_id) || [];
           if (userIds.length === 2 && userIds.includes(user.id) && userIds.includes(recipientId)) {
-            return chat;
+            return conv.chat_conversations;
           }
         }
       }
@@ -556,8 +552,32 @@ export const useChatRequests = () => {
       if (status === 'accepted') {
         const request = requests.find(r => r.id === requestId);
         if (request) {
-          // We'll create the direct chat using the imported function
-          // For now, just refresh the requests
+          // Create direct chat when request is accepted
+          try {
+            // Create new conversation directly
+            const { data: conversation, error: convError } = await supabase
+              .from('chat_conversations')
+              .insert({
+                type: 'direct',
+                created_by: user.id
+              })
+              .select()
+              .single();
+
+            if (convError) throw convError;
+
+            // Add participants
+            const { error: participantsError } = await supabase
+              .from('chat_participants')
+              .insert([
+                { conversation_id: conversation.id, user_id: user.id, is_admin: true },
+                { conversation_id: conversation.id, user_id: request.sender_id, is_admin: false }
+              ]);
+
+            if (participantsError) throw participantsError;
+          } catch (error) {
+            console.error('Error creating direct chat from request:', error);
+          }
         }
       }
 

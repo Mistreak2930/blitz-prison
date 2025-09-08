@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import Navigation from "@/components/navigation";
+
 import { Shield, UserPlus, UserMinus, Users, Settings, Crown, Activity, AlertTriangle, FileText, UserCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useUserRole";
@@ -94,10 +94,9 @@ const AdminDashboard = () => {
   const totalUsers = allProfiles.length;
 
   if (adminLoading || loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  return (
+    <div className="min-h-screen bg-background">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-8 text-muted-foreground">Loading...</div>
         </main>
       </div>
@@ -107,7 +106,6 @@ const AdminDashboard = () => {
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-8">
             <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
@@ -121,8 +119,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
-      
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
