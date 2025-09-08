@@ -517,6 +517,31 @@ export const useChatRequests = () => {
     if (!user) return;
 
     try {
+      // If there's an incoming pending request from the recipient to me, accept it automatically
+      const { data: incoming } = await supabase
+        .from('chat_requests')
+        .select('id')
+        .eq('sender_id', recipientId)
+        .eq('recipient_id', user.id)
+        .eq('status', 'pending')
+        .maybeSingle();
+
+      if (incoming) {
+        await respondToRequest(incoming.id, 'accepted');
+        return;
+      }
+
+      // If I already have a pending request to this user, exit silently
+      const { data: existing } = await supabase
+        .from('chat_requests')
+        .select('id')
+        .eq('sender_id', user.id)
+        .eq('recipient_id', recipientId)
+        .eq('status', 'pending')
+        .maybeSingle();
+
+      if (existing) return;
+
       const { error } = await supabase
         .from('chat_requests')
         .insert({
@@ -526,9 +551,9 @@ export const useChatRequests = () => {
         });
 
       if (error) {
-        if (error.code === '23505') { // Unique constraint violation
-          throw new Error('Chat request already sent to this user');
-        }
+        // Ignore duplicate pending requests quietly
+        // 23505 = unique_violation (covered by our partial unique index on pending requests)
+        if ((error as any).code === '23505') return;
         throw error;
       }
     } catch (error) {
