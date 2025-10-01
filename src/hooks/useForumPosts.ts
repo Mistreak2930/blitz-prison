@@ -4,13 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 export interface ForumPost {
   id: string;
   user_id: string;
-  category: string;
+  category_id: number;
   title: string;
   content: string;
   created_at: string;
   updated_at: string;
-  view_count: number;
-  reply_count: number;
+  views: number;
+  likes: number;
   locked: boolean;
   pinned: boolean;
   profiles?: {
@@ -25,26 +25,37 @@ export const useForumPosts = (categoryId?: number) => {
 
   const fetchPosts = async () => {
     try {
-      const query = supabase
+      let query = supabase
         .from('forum_posts')
-        .select(`
-          *,
-          profiles!forum_posts_user_id_fkey (
-            username,
-            avatar_url
-          )
-        `);
+        .select('*');
 
       if (categoryId) {
-        query.eq('category', categoryId.toString());
+        query = query.eq('category_id', categoryId);
       }
 
-      const { data, error } = await query
+      const { data: postsData, error } = await query
         .order('pinned', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPosts(data || []);
+
+      // Manually fetch profiles for each post
+      const postsWithProfiles = await Promise.all(
+        (postsData || []).map(async (post) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('username, avatar_url')
+            .eq('user_id', post.user_id)
+            .maybeSingle();
+
+          return {
+            ...post,
+            profiles: profile || undefined
+          };
+        })
+      );
+
+      setPosts(postsWithProfiles);
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
@@ -116,14 +127,14 @@ export const useForumPosts = (categoryId?: number) => {
     // Get current view count and increment
     const { data: post } = await supabase
       .from('forum_posts')
-      .select('view_count')
+      .select('views')
       .eq('id', postId)
       .single();
     
     if (post) {
       const { error } = await supabase
         .from('forum_posts')
-        .update({ view_count: (post.view_count || 0) + 1 })
+        .update({ views: (post.views || 0) + 1 })
         .eq('id', postId);
       
       if (error) console.error('Error incrementing views:', error);

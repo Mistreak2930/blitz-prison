@@ -92,7 +92,7 @@ const Forums = () => {
       <div className="grid gap-6">
           {forumCategories.map((category) => {
             const Icon = category.icon;
-            const categoryPosts = posts.filter(post => post.category === category.id.toString());
+            const categoryPosts = posts.filter(post => post.category_id === category.id);
             
             return (
               <Card key={category.id} className="p-6 shadow-blocky hover:shadow-hover transition-all hover:translate-y-[-2px]">

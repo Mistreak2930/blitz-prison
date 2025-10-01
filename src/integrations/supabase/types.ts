@@ -174,43 +174,43 @@ export type Database = {
       }
       forum_posts: {
         Row: {
-          category: string
+          category_id: number
           content: string
           created_at: string | null
           id: string
+          likes: number | null
           locked: boolean | null
           pinned: boolean | null
-          reply_count: number | null
           title: string
           updated_at: string | null
           user_id: string
-          view_count: number | null
+          views: number | null
         }
         Insert: {
-          category: string
+          category_id?: number
           content: string
           created_at?: string | null
           id?: string
+          likes?: number | null
           locked?: boolean | null
           pinned?: boolean | null
-          reply_count?: number | null
           title: string
           updated_at?: string | null
           user_id: string
-          view_count?: number | null
+          views?: number | null
         }
         Update: {
-          category?: string
+          category_id?: number
           content?: string
           created_at?: string | null
           id?: string
+          likes?: number | null
           locked?: boolean | null
           pinned?: boolean | null
-          reply_count?: number | null
           title?: string
           updated_at?: string | null
           user_id?: string
-          view_count?: number | null
+          views?: number | null
         }
         Relationships: []
       }
