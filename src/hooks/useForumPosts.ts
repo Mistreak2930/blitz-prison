@@ -89,7 +89,7 @@ export const useForumPosts = (categoryId?: number) => {
         .from('forum_posts')
         .insert([{
           user_id: user.id,
-          category: categoryId.toString(),
+          category_id: categoryId,
           title,
           content
         }])
