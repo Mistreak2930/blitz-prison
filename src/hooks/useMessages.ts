@@ -10,7 +10,6 @@ export interface PrivateMessage {
   content: string;
   read: boolean;
   created_at: string;
-  updated_at: string;
   sender_profile?: {
     username: string;
     avatar_url?: string;

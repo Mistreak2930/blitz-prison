@@ -4,13 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 export interface ForumPost {
   id: string;
   user_id: string;
-  category_id: number;
+  category: string;
   title: string;
   content: string;
   created_at: string;
   updated_at: string;
-  views: number;
-  likes: number;
+  view_count: number;
+  reply_count: number;
+  locked: boolean;
   pinned: boolean;
   profiles?: {
     username: string;
@@ -28,14 +29,14 @@ export const useForumPosts = (categoryId?: number) => {
         .from('forum_posts')
         .select(`
           *,
-          profiles (
+          profiles!forum_posts_user_id_fkey (
             username,
             avatar_url
           )
         `);
 
       if (categoryId) {
-        query.eq('category_id', categoryId);
+        query.eq('category', categoryId.toString());
       }
 
       const { data, error } = await query
@@ -77,7 +78,7 @@ export const useForumPosts = (categoryId?: number) => {
         .from('forum_posts')
         .insert([{
           user_id: user.id,
-          category_id: categoryId,
+          category: categoryId.toString(),
           title,
           content
         }])
@@ -112,13 +113,21 @@ export const useForumPosts = (categoryId?: number) => {
   };
 
   const incrementViews = async (postId: string) => {
-    // Simple increment using SQL
-    const { error } = await supabase
+    // Get current view count and increment
+    const { data: post } = await supabase
       .from('forum_posts')
-      .update({ views: 1 }) // We'll just increment by 1 for now
-      .eq('id', postId);
+      .select('view_count')
+      .eq('id', postId)
+      .single();
     
-    if (error) console.error('Error incrementing views:', error);
+    if (post) {
+      const { error } = await supabase
+        .from('forum_posts')
+        .update({ view_count: (post.view_count || 0) + 1 })
+        .eq('id', postId);
+      
+      if (error) console.error('Error incrementing views:', error);
+    }
   };
 
   useEffect(() => {

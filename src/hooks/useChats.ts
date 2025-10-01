@@ -5,8 +5,7 @@ import { useAuth } from './useAuth';
 interface ChatConversation {
   id: string;
   name?: string;
-  type: 'direct' | 'group';
-  created_by: string;
+  is_group: boolean;
   created_at: string;
   updated_at: string;
   participants?: ChatParticipant[];
@@ -18,7 +17,6 @@ interface ChatParticipant {
   conversation_id: string;
   user_id: string;
   joined_at: string;
-  is_admin: boolean;
   profile?: {
     username: string;
     avatar_url?: string;
@@ -30,11 +28,9 @@ interface ChatMessage {
   conversation_id: string;
   sender_id: string;
   content: string;
-  message_type: 'text' | 'image' | 'file' | 'system';
   reply_to_id?: string;
   created_at: string;
-  updated_at: string;
-  deleted_at?: string;
+  deleted: boolean;
   sender_profile?: {
     username: string;
     avatar_url?: string;
@@ -150,9 +146,8 @@ export const useChats = () => {
           conversation_id,
           chat_conversations!inner(
             id,
-            type,
+            is_group,
             name,
-            created_by,
             created_at,
             updated_at
           )
@@ -163,7 +158,7 @@ export const useChats = () => {
 
       // Check if any existing conversation is a direct chat with this recipient
       for (const conv of existingConversations || []) {
-        if (conv.chat_conversations.type === 'direct') {
+        if (!conv.chat_conversations.is_group) {
           const { data: participants } = await supabase
             .from('chat_participants')
             .select('user_id')
@@ -180,8 +175,7 @@ export const useChats = () => {
       const { data: conversation, error } = await supabase
         .from('chat_conversations')
         .insert({
-          type: 'direct',
-          created_by: user.id
+          is_group: false
         })
         .select()
         .single();
@@ -192,8 +186,8 @@ export const useChats = () => {
       const { error: participantsError } = await supabase
         .from('chat_participants')
         .insert([
-          { conversation_id: conversation.id, user_id: user.id, is_admin: true },
-          { conversation_id: conversation.id, user_id: recipientId, is_admin: false }
+          { conversation_id: conversation.id, user_id: user.id },
+          { conversation_id: conversation.id, user_id: recipientId }
         ]);
 
       if (participantsError) throw participantsError;
@@ -214,8 +208,7 @@ export const useChats = () => {
         .from('chat_conversations')
         .insert({
           name,
-          type: 'group',
-          created_by: user.id
+          is_group: true
         })
         .select()
         .single();
@@ -224,11 +217,10 @@ export const useChats = () => {
 
       // Add creator and participants
       const participants = [
-        { conversation_id: conversation.id, user_id: user.id, is_admin: true },
+        { conversation_id: conversation.id, user_id: user.id },
         ...participantIds.map(id => ({ 
           conversation_id: conversation.id, 
-          user_id: id, 
-          is_admin: false 
+          user_id: id
         }))
       ];
 
@@ -293,7 +285,7 @@ export const useChatMessages = (conversationId?: string) => {
         .from('chat_messages')
         .select('*')
         .eq('conversation_id', conversationId)
-        .is('deleted_at', null)
+        .eq('deleted', false)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -379,7 +371,7 @@ export const useChatMessages = (conversationId?: string) => {
     try {
       const { error } = await supabase
         .from('chat_messages')
-        .update({ deleted_at: new Date().toISOString() })
+        .update({ deleted: true })
         .eq('id', messageId)
         .eq('sender_id', user.id);
 
@@ -583,8 +575,7 @@ export const useChatRequests = () => {
             const { data: conversation, error: convError } = await supabase
               .from('chat_conversations')
               .insert({
-                type: 'direct',
-                created_by: user.id
+                is_group: false
               })
               .select()
               .single();
@@ -595,8 +586,8 @@ export const useChatRequests = () => {
             const { error: participantsError } = await supabase
               .from('chat_participants')
               .insert([
-                { conversation_id: conversation.id, user_id: user.id, is_admin: true },
-                { conversation_id: conversation.id, user_id: request.sender_id, is_admin: false }
+                { conversation_id: conversation.id, user_id: user.id },
+                { conversation_id: conversation.id, user_id: request.sender_id }
               ]);
 
             if (participantsError) throw participantsError;

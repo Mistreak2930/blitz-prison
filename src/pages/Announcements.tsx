@@ -17,7 +17,7 @@ const Announcements = () => {
   const { isAdmin } = useIsAdmin();
   const { hasRole } = useRoles();
 
-  const canManageAnnouncements = isAdmin || (user && hasRole(user.id, 'announcements_manager'));
+  const canManageAnnouncements = isAdmin || (user && hasRole(user.id, 'moderator'));
 
   const handlePin = async (id: string, pinned: boolean) => {
     try {

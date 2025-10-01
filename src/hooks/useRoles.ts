@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-export type AppRole = 'admin' | 'moderator' | 'user' | 'dev' | 'news_updater' | 'announcements_manager';
+export type AppRole = 'admin' | 'moderator' | 'user';
 
 interface UserRole {
   id: string;
   user_id: string;
   role: AppRole;
   created_at: string;
-  updated_at: string;
 }
 
 interface ProfileWithRoles {

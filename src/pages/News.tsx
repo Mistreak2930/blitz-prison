@@ -17,7 +17,7 @@ const News = () => {
   const { isAdmin } = useIsAdmin();
   const { hasRole } = useRoles();
 
-  const canManageNews = isAdmin || (user && hasRole(user.id, 'news_updater'));
+  const canManageNews = isAdmin || (user && hasRole(user.id, 'moderator'));
 
   const handlePin = async (id: string, pinned: boolean) => {
     try {

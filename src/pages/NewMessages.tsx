@@ -378,7 +378,7 @@ const NewMessages = () => {
                     >
                       <div className="flex items-start gap-3">
                         <div className="p-1 rounded-sm bg-card border border-border">
-                          {conversation.type === 'group' ? (
+                          {conversation.is_group ? (
                             <Users className="h-4 w-4 text-primary" />
                           ) : (
                             <User className="h-4 w-4 text-primary" />
@@ -390,7 +390,7 @@ const NewMessages = () => {
                             {getConversationName(conversation)}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {conversation.type === 'group' 
+                            {conversation.is_group
                               ? `${conversation.participants?.length} members`
                               : 'Direct message'
                             }
@@ -422,7 +422,7 @@ const NewMessages = () => {
                         {getConversationName(selectedConversationData)}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {selectedConversationData.type === 'group' 
+                        {selectedConversationData.is_group
                           ? `${otherParticipants.length + 1} members`
                           : otherParticipants[0]?.profile?.username || 'Direct message'
                         }

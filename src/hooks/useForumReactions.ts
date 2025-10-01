@@ -28,7 +28,7 @@ export const useForumReactions = (postId: string) => {
   const fetchReactions = async () => {
     try {
       const { data, error } = await supabase
-        .from('post_reactions')
+        .from('forum_reactions')
         .select('*')
         .eq('post_id', postId);
       
@@ -63,7 +63,7 @@ export const useForumReactions = (postId: string) => {
     if (hasReaction) {
       // Remove reaction
       const { error } = await supabase
-        .from('post_reactions')
+        .from('forum_reactions')
         .delete()
         .eq('post_id', postId)
         .eq('user_id', user.id)
@@ -73,7 +73,7 @@ export const useForumReactions = (postId: string) => {
     } else {
       // Add reaction
       const { error } = await supabase
-        .from('post_reactions')
+        .from('forum_reactions')
         .insert([{
           post_id: postId,
           user_id: user.id,
