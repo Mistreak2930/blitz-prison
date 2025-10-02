@@ -17,7 +17,7 @@ import { Separator } from '@/components/ui/separator';
 const Profile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { getProfile, updateProfile } = useProfiles();
   const { sendMessage } = useMessages();
   const { toast } = useToast();
@@ -41,8 +41,15 @@ const Profile = () => {
 
   useEffect(() => {
     const loadProfile = async () => {
+      // Wait for auth to load before doing anything
+      if (authLoading) {
+        return;
+      }
+
       try {
         const targetUserId = userId || user?.id;
+        
+        // If no targetUserId and auth is done loading, user is not logged in
         if (!targetUserId) {
           navigate('/auth');
           return;
@@ -75,7 +82,7 @@ const Profile = () => {
     };
 
     loadProfile();
-  }, [userId, user?.id]);
+  }, [userId, user?.id, authLoading]);
 
   const handleUpdateProfile = async () => {
     try {
@@ -127,7 +134,7 @@ const Profile = () => {
     }
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-muted-foreground">Loading profile...</div>
