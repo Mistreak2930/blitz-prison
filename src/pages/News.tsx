@@ -51,9 +51,9 @@ const News = () => {
   return (
     <div className="space-y-8">
       <div className="mb-8">
-        <h1 className="text-4xl font-black text-foreground mb-4">Blitz Network News</h1>
+        <h1 className="text-4xl font-black bg-gradient-to-r from-primary via-accent to-gaming-purple bg-clip-text text-transparent mb-4">FluxMc News</h1>
         <p className="text-muted-foreground text-lg">
-          Get News and Updates on the latest Blitz Network Info!
+          Stay updated with the latest FluxMc announcements and server updates!
         </p>
       </div>
 

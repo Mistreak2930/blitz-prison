@@ -45,17 +45,17 @@ const Index = () => {
       <div className="relative h-96 rounded-lg overflow-hidden">
         <img 
           src={heroImage} 
-          alt="Blitz Network Hero" 
+          alt="FluxMc Network Hero"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-center px-8">
-          <h1 className="text-6xl font-black text-white mb-4 drop-shadow-lg">
-            BLITZ NETWORK
+          <h1 className="text-6xl font-black bg-gradient-to-r from-primary via-accent to-gaming-purple bg-clip-text text-transparent mb-4 drop-shadow-2xl">
+            FLUXMC NETWORK
           </h1>
           <p className="text-xl text-white/90 mb-6 max-w-2xl drop-shadow-md">
-            The ultimate Minecraft server network with Prison, Skyblock, and more! 
-            Join thousands of players in our community.
+            Experience the next generation of Minecraft servers with Prison, Skyblock, and more! 
+            Join thousands of players in our thriving community.
           </p>
           <div className="flex gap-4">
             <Button size="lg" className="bg-primary hover:bg-primary/90" onClick={() => navigate('/forums')}>

@@ -11,8 +11,8 @@ import { MessageSquare, Users, Lock, Star, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 const forumCategories = [
-  { id: 1, title: "General Discussion", description: "Talk about anything related to Blitz Prison", icon: MessageSquare, color: "text-primary" },
-  { id: 2, title: "Prison Guides & Tips", description: "Share strategies and guides for advancing in prison", icon: Star, color: "text-accent" },
+  { id: 1, title: "General Discussion", description: "Talk about anything related to FluxMc", icon: MessageSquare, color: "text-primary" },
+  { id: 2, title: "Prison Guides & Tips", description: "Share strategies and guides for advancing", icon: Star, color: "text-accent" },
   { id: 3, title: "Staff Applications", description: "Apply to become a staff member", icon: Lock, color: "text-gaming-orange" },
   { id: 4, title: "Player Reports", description: "Report players breaking the rules", icon: Zap, color: "text-destructive" },
   { id: 5, title: "Trading & Economy", description: "Trade items and discuss the server economy", icon: Users, color: "text-gaming-purple" },
@@ -27,10 +27,10 @@ const ForumCategory = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
-    const title = category ? `${category.title} | Blitz Prison Forums` : `Forums | Blitz Prison`;
+    const title = category ? `${category.title} | FluxMc Forums` : `Forums | FluxMc`;
     document.title = title;
 
-    const descText = category ? `${category.title} - ${category.description}` : 'Browse Blitz Prison forum posts by category.';
+    const descText = category ? `${category.title} - ${category.description}` : 'Browse FluxMc forum posts by category.';
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {
       meta = document.createElement('meta');

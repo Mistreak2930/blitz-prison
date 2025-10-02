@@ -71,8 +71,10 @@ export function AppSidebar() {
       <SidebarContent className="bg-background">
         {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel className={`text-primary font-black text-lg ${isCollapsed ? 'text-center' : ''}`}>
-            {isCollapsed ? "BN" : "BLITZ NETWORK"}
+          <SidebarGroupLabel className={`font-black text-lg ${isCollapsed ? 'text-center' : ''}`}>
+            <span className="bg-gradient-to-r from-primary via-accent to-gaming-purple bg-clip-text text-transparent">
+              {isCollapsed ? "FM" : "FLUXMC"}
+            </span>
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

@@ -14,9 +14,9 @@ const Members = () => {
   return (
     <div className="space-y-8">
       <div className="mb-8">
-        <h1 className="text-4xl font-black text-foreground mb-4">MEMBERS</h1>
+        <h1 className="text-4xl font-black bg-gradient-to-r from-primary via-accent to-gaming-purple bg-clip-text text-transparent mb-4">MEMBERS</h1>
         <p className="text-muted-foreground text-lg">
-          Connect with other members of the Blitz Network community.
+          Connect with other members of the FluxMc community.
         </p>
       </div>
 

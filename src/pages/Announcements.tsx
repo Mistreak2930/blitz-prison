@@ -51,9 +51,9 @@ const Announcements = () => {
   return (
     <div className="space-y-8">
       <div className="mb-8">
-        <h1 className="text-4xl font-black text-foreground mb-4">NETWORK ANNOUNCEMENTS</h1>
+        <h1 className="text-4xl font-black bg-gradient-to-r from-primary via-accent to-gaming-purple bg-clip-text text-transparent mb-4">NETWORK ANNOUNCEMENTS</h1>
         <p className="text-muted-foreground text-lg">
-          Important updates, maintenance notices, and official announcements from the Blitz Network team.
+          Important updates, maintenance notices, and official announcements from the FluxMc team.
         </p>
       </div>
 

@@ -31,7 +31,7 @@ const Forums = () => {
     {
       id: 1,
       title: "General Discussion",
-      description: "Talk about anything related to Blitz Prison",
+      description: "Talk about anything related to FluxMc",
       icon: MessageSquare,
       topics: 1247,
       posts: 8934,

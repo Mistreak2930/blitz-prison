@@ -84,8 +84,8 @@ const Auth = () => {
           <Card className="shadow-blocky border-2 border-border backdrop-blur-sm bg-card/95">
             <CardHeader className="text-center pb-2">
               <div className="mb-4">
-                <span className="text-4xl font-black text-primary">⛏</span>
-                <h1 className="text-2xl font-black text-foreground mt-2">BLITZ NETWORK</h1>
+                <span className="text-4xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">⚡</span>
+                <h1 className="text-2xl font-black bg-gradient-to-r from-primary via-accent to-gaming-purple bg-clip-text text-transparent mt-2">FLUXMC</h1>
               </div>
               <CardTitle className="text-xl font-bold text-foreground">
                 {isLogin ? 'WELCOME BACK' : 'JOIN THE NETWORK'}

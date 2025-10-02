@@ -43,8 +43,8 @@ const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-black text-primary">⛏</span>
-              <span className="text-xl font-black text-foreground">BLITZ PRISON</span>
+              <span className="text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">⚡</span>
+              <span className="text-xl font-black bg-gradient-to-r from-primary via-accent to-gaming-purple bg-clip-text text-transparent">FLUXMC</span>
             </Link>
           </div>
           
