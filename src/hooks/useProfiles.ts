@@ -83,8 +83,10 @@ export const useProfiles = () => {
 
   // Update last seen when component mounts
   useEffect(() => {
-    updateLastSeen();
-  }, [user]);
+    if (user) {
+      updateLastSeen();
+    }
+  }, [user?.id]);
 
   return {
     profiles,
